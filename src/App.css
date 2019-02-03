@@ -30,3 +30,99 @@
     transform: rotate(360deg);
   }
 }
+
+.wholeApp
+{
+  height:100%;
+  width: 100%;
+  background-color:rgb(219, 219, 219);
+  position:fixed!important;
+}
+
+.sideBar
+{
+  float:left;  
+  height: 100%;
+  width: 25%;
+  max-width: 150px;
+  background-color:rgb(182, 182, 182);  
+  overflow:auto;
+  -webkit-transition: width 0.5s;
+  transition: width 0.5s;
+}
+
+.collapsed
+{
+  width: 0%;
+  -webkit-transition: width 0.5s;
+  transition: width 0.5s;
+  overflow: hidden;
+}
+
+.appBody
+{
+  float:right;  
+  height: 100%;
+  width: 100%;
+  overflow:auto;
+}
+
+.barItem
+{
+  box-sizing: border-box;    
+  padding:8px 16px;
+  float:left;
+  width:auto;
+  border:none;
+  display:block;
+  width:100%;
+  outline:0
+}
+
+.button
+{
+  border:none;
+  display:inline-block;
+  box-sizing: border-box;    
+  padding:8px 16px;
+  vertical-align:middle;
+  overflow:hidden;
+  text-decoration:none;
+  color:inherit;
+  background-color:gray;
+  cursor:pointer;
+  white-space:nowrap;
+  -webkit-transition: background-color 0.4s;
+  transition: background-color 0.4s;
+}
+
+.button:hover
+{
+  background-color:lightblue;
+}
+
+.current
+{
+  background-color:rgb(160, 183, 190);
+  font-weight: bold;
+  -webkit-transition: font-weight 0.4s;
+  transition: font-weight 0.4s;
+}
+
+.expandButton
+{
+  position: absolute;
+  margin: 0 0 0 -16px;
+  width: 16px;
+  top: 0;  
+  padding:0px 0px;
+  -webkit-transition: margin 0.4s;
+  transition: margin 0.6s;
+}
+
+.collapsedButton
+{
+  margin: 0 0 0 0;
+  -webkit-transition: margin 0.4s;
+  transition: margin 0.6s;
+}
