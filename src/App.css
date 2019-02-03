@@ -116,13 +116,13 @@
   width: 16px;
   top: 0;  
   padding:0px 0px;
-  -webkit-transition: margin 0.4s;
+  -webkit-transition: margin 0.6s;
   transition: margin 0.6s;
 }
 
 .collapsedButton
 {
   margin: 0 0 0 0;
-  -webkit-transition: margin 0.4s;
+  -webkit-transition: margin 0.6s;
   transition: margin 0.6s;
 }
