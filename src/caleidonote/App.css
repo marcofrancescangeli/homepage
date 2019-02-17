@@ -1,0 +1,19 @@
+.stoca
+{
+    position: relative;
+    left: 400;
+    width : 200;
+    background-color: black;
+}
+
+.parentDiv
+{
+    height : 200px;
+    overflow: hidden;
+    border: 1px solid black;
+}
+.scrollingDiv
+{
+    position: relative;
+    background-color: #fffff0;
+}

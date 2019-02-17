@@ -2,8 +2,7 @@ import * as React from 'react';
 
 class Intro extends React.Component {
     render() {
-        return (<div>
-            <h2> 
+        return (<div><h2> 
                 Hi there
             </h2>
             <p>

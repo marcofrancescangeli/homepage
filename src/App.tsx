@@ -17,14 +17,25 @@ enum Section
 
 type AppStatus = {
   section: Section,
-  sideBarExpanded: boolean
+  forced: boolean,
+  sideBarExpanded: boolean  
 }
 
 class App extends React.Component<{}, AppStatus> {
   constructor(props: any)
   {
     super(props);
-    this.state = {section: Section.INTRO, sideBarExpanded: true};
+    let section = Section.INTRO;
+    let forced = true;
+    switch (window.location.pathname)
+    {      
+      case "/caleidonote": section = Section.CALEIDONOTE; break;
+      case "/binaural": section = Section.BINAURAL; break;
+      case "/CV": section = Section.CV; break;
+      default: forced = false; break;
+    }
+    this.state = {section: section, forced: forced, sideBarExpanded: true};
+    
   }
   
 
@@ -40,7 +51,6 @@ class App extends React.Component<{}, AppStatus> {
   }
 
   render() {
-
     let el;
     //console.log("rendered");
     switch (this.state.section)
@@ -56,7 +66,12 @@ class App extends React.Component<{}, AppStatus> {
       case Section.INTRO:
         el = <Intro/>;
         break;
-    }    
+    }
+
+    if ( this.state.forced )
+    {
+      return el;
+    }
 
     let buttons : any[] = [];
     Object.keys(Section).forEach( key => {
@@ -73,25 +88,25 @@ class App extends React.Component<{}, AppStatus> {
     );
  
     let sideBarClass = "sideBar";
-    let expandButton = "button expandButton";
+    let appBodyClass = "appBody";
     if (!this.state.sideBarExpanded)
     {
       sideBarClass += " collapsed";
-      expandButton += " collapsedButton";
-    }
+      appBodyClass += " appBodyExpanded";
+    }    
     return (
-      <div className="wholeApp">
-        <div className={sideBarClass}>
-          <h3 className="barItem">Menu</h3>
-          {buttons.map(bt => bt)}
-        </div>
-        <div className="appbody">
-        <a className={expandButton} onClick={((event: any) => this.toggleCollapse())}>
-            {this.state.sideBarExpanded ? <FaAngleLeft/>:<FaAngleRight/>}
-        </a>
-        {el}
-        </div>
-      </div>
+      <React.Fragment>
+          <div className={sideBarClass}>
+            {this.state.sideBarExpanded && <a className="hideMenuButton" onClick={((event: any) => this.toggleCollapse())}><FaAngleLeft/></a>}
+            <h3 className="barItem">Menu</h3>
+            {buttons.map(bt => bt)}
+          </div>
+          {!this.state.sideBarExpanded && <a className="showMenuButton" onClick={((event: any) => this.toggleCollapse())}><FaAngleRight/></a>}
+            
+          <div className={appBodyClass}>
+          {el}
+          </div>
+      </React.Fragment>
     );
   }
 }
