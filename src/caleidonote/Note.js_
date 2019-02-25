@@ -1,0 +1,88 @@
+
+function drawStaff(left, right)
+{
+    var i;
+    ctx.lineWidth = 0.6;
+      
+    for ( i = 0; i < 5; ++i )
+    {
+      var y = i * space - (space*2);
+      ctx.beginPath();
+      ctx.moveTo(left, y);
+      ctx.lineTo(right, y);
+      ctx.stroke();
+    }
+}
+
+function mod(a,b)
+{
+    return a - Math.floor(a/b)*b;
+}
+
+var A = 5;
+var B = 6;
+var C = 0;
+var D = 1;
+var E = 2;
+var F = 3;
+var G = 4;
+
+var majorScale = [0,2,4,5,7,9,11];
+
+var toneToDegree = [
+  [C, C, D, D, E, F, F, G, G, A, A, B], //all sharps
+  [C, C, D, E, E, F, F, G, G, A, B, B], //some sharps some flats
+  [C, D, D, E, E, F, G, G, A, A, B, B], //all flats
+];
+
+var transposePreferredNote = [ C, D, D, E, E, F, G, G, A, A, B, B];
+
+
+/////////////////////////////
+// NOTE CREATOR
+/////////////////////////////
+
+// Symbol factory, holding a state, that can be used to generate groups of symbols.
+// Has operations like Start/End beam, or tie with next.
+// Eventually it can also be used to automatically format notes (beams, rests) 
+
+var nc_nplet = 111;
+
+
+
+function randomWithinInterval(oldNote, minInterval, maxInterval, minNote, maxNote)
+{
+    var interval = minInterval + Math.floor(Math.random()*(maxInterval-minInterval))%(maxInterval-minInterval);
+    var upDown = 1;
+    if (oldNote + interval > maxNote){ interval = -interval; }
+    else if (oldNote - interval < minNote){ }
+    else if ( Math.random() >= 0.5 ) interval = -interval;
+
+    var halftone = oldNote + interval;
+    oldNote = halftone;
+
+    return halftone;
+}
+
+
+function average( start, end, what )
+{
+    var value = 0;
+    
+    for ( var i =start; i <end; ++i)
+    {
+        value += what(i);
+    }
+    return value / (end-start);
+}
+
+
+
+/////////////////////////////
+// CHORD
+/////////////////////////////
+
+
+
+
+

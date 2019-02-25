@@ -1,0 +1,55 @@
+var Queue = function(size)
+{
+  this.size = size;
+  this.begin = 0;
+  this.end = 0;
+  this.data = [];
+  
+  this.isEmpty = function(){ return this.end == this.begin; }
+  
+  this.forEach = function( functor )
+  {
+    this.forRange(this.begin, this.end, functor );
+  }
+  
+  this.forRange = function( begin, end, functor )
+  {
+    var i = begin;
+    while( i != end )
+    {
+      functor(this.data[i]);
+      i++;
+      if (i == this.size )
+      {
+        i = 0;
+      }
+    }
+  }
+  
+  this.pushBack = function( what )
+  {
+    this.data[this.end] = what;
+    this.end++;
+    if (this.end == this.size )
+    {
+      this.end = 0;
+    }
+  }
+  
+  this.popFront = function()
+  {
+    if ( this.isEmpty() ) return;
+    this.data[this.begin] = 0;
+    
+    this.begin++;
+    if (this.begin == this.size )
+    {
+      this.begin = 0;
+    }
+  }
+  
+  this.front = function()
+  {
+    return this.data[this.begin];
+  }  
+};

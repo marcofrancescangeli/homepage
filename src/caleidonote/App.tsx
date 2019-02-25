@@ -2,7 +2,15 @@ import * as React from 'react';
 //import 'rc-slider/assets/index.css';
 import Slider from '@material-ui/lab/Slider';
 import {Scroller, Painter} from './Scroller'
+import Button from '@material-ui/core/Button';
+//import ToggleButton from '@material-ui/lab/ToggleButton';
+//import ToggleButtonGroup from '@material-ui/lab/ToggleButtonGroup';
 import './App.css';
+import { FaPlay, FaStop } from 'react-icons/fa';
+import { withStyles } from '@material-ui/core/styles';
+import Typography from '@material-ui/core/Typography';
+import SimpleSlider from './SimpleSlider';
+import {Symbol} from './PaintElements/Symbol';
 
 type AppState = {
     zoom: number,
@@ -10,41 +18,42 @@ type AppState = {
     playing: boolean
 }
 
-interface PaintElement
-{
-    x: number;
-    y: number;
-    width: number;
-}
 
 class PainterNote implements Painter
 {
     leftmost: number = 0;
     offset: number = 0;
-
+    rightmost: number = 0;
+    
     //this should be a queue?
-    elementList: Array<PaintElement> = new Array<PaintElement>();
+    elementList: Array<Symbol> = new Array<Symbol>();
     
     //paint new elements and return the rightmost coordinate (in canvas X)
-    paint(context: CanvasRenderingContext2D) : number
+    paint = (context: CanvasRenderingContext2D) : number =>
     {
         this.leftmost += 10;
         return this.leftmost;
     }
 
     //this notifies that the canvas is going out of sight (in canvas X)
-    unpaint( upToX: number ) : void
+    unpaint = ( upToX: number ) : void =>
     {
         //don't do anything for now
     }
 
     // apply new offset to the graphics stuff and return the new rightmost coordinate (in canvas X)
-    applyOffsetAndRepaint(newOffset: number, context: CanvasRenderingContext2D) : number
+    applyOffsetAndRepaint = (newOffset: number, context: CanvasRenderingContext2D) : number =>
     {
         this.leftmost -= (newOffset - this.offset);
         this.offset = newOffset;
         //repaint stuff
         return this.leftmost;
+    }
+
+    addSymbol = (symbol :Symbol) =>
+    {
+        this.push(symbol);
+        // TODO decide how to handle the cursor X. Is it needed?
     }
 }
 
@@ -64,10 +73,18 @@ class App extends React.Component<{},AppState>
         }
     }
 
-    onTogglePlay()
+    onTogglePlay = () =>
     {
         this.setState({playing:!this.state.playing});
     }
+
+    onSpeedChange = (event:any, value:number) => {
+        this.setState({ speed: value });
+    };
+
+    onZoomChange = (event:any, value:number) => {
+        this.setState({ zoom: value });
+    };
 
     render()
     {
@@ -82,9 +99,9 @@ class App extends React.Component<{},AppState>
         return (
             <div>
                 <Scroller zoom={1} speed={1} painter={this.painter}/>
-                <a onClick={this.onTogglePlay.bind(this)}>{this.state.playing?"Play":"Stop"}</a>
-                Speedossf<br/><br/><br/><br/>
-                <div><Slider style={{height:200, width:300}} vertical={false} min={1} max={100} value={50}/></div>
+                <Button variant="contained" color="primary" onClick={this.onTogglePlay}>{this.state.playing?<FaPlay/>:<FaStop/>}</Button>
+                <SimpleSlider name= "Speed" vertical={false} min={1} max={100} value={this.state.speed} onChange={this.onSpeedChange}/>
+                <SimpleSlider name="zoom" vertical={false} min={1} max={100} value={this.state.zoom} onChange={this.onZoomChange}/>
             </div>
         );
     }

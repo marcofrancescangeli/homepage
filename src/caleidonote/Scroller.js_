@@ -1,0 +1,126 @@
+function Scroller(left, right, canvas)
+{
+  this.cursor = 0;
+  this.right = right;
+  this.left = left;
+  
+  var symbols = new Queue(1000);
+  var speed = 0;
+  var then = performance.now();
+  var generator;
+  var _running = false;
+  var _stepTimer;
+  var _offsetX = 0;
+  var _canvas = canvas;
+  _canvas.style.position = "relative";
+  
+  this.SetGenerator = function(g)
+  {
+    generator = g;  
+  }
+  
+  this.AddSymbol = function(symbol)
+  {
+    symbols.pushBack(symbol);
+  }
+  this.SetSpeed = function(s)
+  {
+    speed = s;
+  }
+  
+  this.Pause = function()
+  {
+    window.cancelAnimationFrame(_stepTimer);
+    timerRunning = false;
+    _running = false;
+  }
+  
+  this.Play = function()
+  {
+    if ( !_running )
+    {
+        _stepTimer = window.requestAnimationFrame(Step);
+        _running = true;
+        then = performance.now();
+    }
+  };
+  
+  this.IsPlaying = function() { return _running; }
+  
+  this.Reset = function()
+  {
+    _canvas.style.left = "0px";
+    
+    //move all of the notes
+    symbols.forEach( function(symbol)
+    {
+      symbol.centerX += _offsetX/zoom;
+    } ); 
+    _this.cursor += _offsetX/zoom;
+    
+    _offsetX = 0;
+    this.Draw();
+  };
+  
+  this.Draw = function()
+  {
+    ctx.clearRect(0, (-_canvas.height/2)/zoom, _canvas.width/zoom, _canvas.height/zoom);
+    
+    if (this.onDraw)
+    {
+        this.onDraw();
+    }
+
+    //draw symbols
+    symbols.forEach( function(symbol)
+    {
+      symbol.Draw();
+    } );
+  };
+  
+  var _this=this;
+  
+  var Step = function(time)
+  {
+    _stepTimer = window.requestAnimationFrame(Step);
+    
+    var elapsedtime = (time - then)/1000.0;
+    then = time;
+    var scrollamount = speed * elapsedtime;
+
+    if (_offsetX < -_this.right)
+    {
+      _this.Reset();
+    }
+    
+    //scroll the canvas, so there is no need to redraw the notes
+    _offsetX -= scrollamount * zoom;
+    _canvas.style.left = _offsetX + "px";
+    
+    //remove notes out of sight    
+    while ( !symbols.isEmpty() )
+    {
+      if ( symbols.front().IsLeftOf( (_this.left - _offsetX)/zoom ) )
+      {
+        symbols.popFront();
+      }
+      else
+      {
+        break;
+      }
+    }
+    
+    
+    var lastSymbol = symbols.end;
+    if(generator)
+    {
+      while ( _this.cursor * zoom + _offsetX < _this.right )
+      {
+        generator(_this);
+      }
+    }
+    
+    //draw the new symbols
+    symbols.forRange(lastSymbol, symbols.end, function(symbol){symbol.Draw();});
+  }
+}
