@@ -3,14 +3,11 @@ import * as React from 'react';
 import Slider from '@material-ui/lab/Slider';
 import {Scroller, Painter} from './Scroller'
 import Button from '@material-ui/core/Button';
-//import ToggleButton from '@material-ui/lab/ToggleButton';
-//import ToggleButtonGroup from '@material-ui/lab/ToggleButtonGroup';
 import './App.css';
 import { FaPlay, FaStop } from 'react-icons/fa';
-import { withStyles } from '@material-ui/core/styles';
-import Typography from '@material-ui/core/Typography';
 import SimpleSlider from './SimpleSlider';
 import {Symbol} from './PaintElements/Symbol';
+import Queue from './Queue'
 
 type AppState = {
     zoom: number,
@@ -24,36 +21,67 @@ class PainterNote implements Painter
     leftmost: number = 0;
     offset: number = 0;
     rightmost: number = 0;
-    
+        
     //this should be a queue?
-    elementList: Array<Symbol> = new Array<Symbol>();
+    elementList: Queue<Symbol> = new Queue<Symbol>(1000);
+    lastElementDrawn: number = 0;
     
     //paint new elements and return the rightmost coordinate (in canvas X)
     paint = (context: CanvasRenderingContext2D) : number =>
     {
-        this.leftmost += 10;
-        return this.leftmost;
+        let res = this.rightmost;
+        this.elementList.forRange(this.lastElementDrawn, this.elementList.end, (s: Symbol)=>
+        {
+            s.draw(context);
+            let right = s.centerX + s.bb.right();
+            if (right > res)
+            {
+                res = right;
+            }
+        });
+        return res;
     }
 
     //this notifies that the canvas is going out of sight (in canvas X)
     unpaint = ( upToX: number ) : void =>
     {
-        //don't do anything for now
+        while( !this.elementList.isEmpty())
+        {
+            let f = this.elementList.front();
+            if (f && f.centerX+f.bb.right() < upToX)
+            {
+                this.elementList.popFront();
+            }
+            else
+            {
+                break;
+            }
+        }        
     }
 
     // apply new offset to the graphics stuff and return the new rightmost coordinate (in canvas X)
-    applyOffsetAndRepaint = (newOffset: number, context: CanvasRenderingContext2D) : number =>
+    applyOffset = (shiftLeft: number, context: CanvasRenderingContext2D) : number =>
     {
-        this.leftmost -= (newOffset - this.offset);
-        this.offset = newOffset;
-        //repaint stuff
+        this.leftmost -= shiftLeft;
+        this.elementList.forRange(this.elementList.begin, this.elementList.end, (s: Symbol)=>
+        {
+            s.centerX += shiftLeft;            
+        });
+        
+        this.lastElementDrawn = this.elementList.begin;
+
         return this.leftmost;
     }
 
-    addSymbol = (symbol :Symbol) =>
+    addSymbol = (symbol :Symbol) : number =>
     {
-        this.push(symbol);
-        // TODO decide how to handle the cursor X. Is it needed?
+        this.elementList.pushBack(symbol);
+        let symbolLeft = symbol.centerX+symbol.bb.left();
+        if ( this.rightmost < symbolLeft )
+        {
+            this.rightmost = symbolLeft;
+        }
+        return this.rightmost;
     }
 }
 

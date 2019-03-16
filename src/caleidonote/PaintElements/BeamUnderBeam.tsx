@@ -5,7 +5,7 @@ import {NotePaintContext} from './NotePaintContext'
 
 export class BeamUnderBeam extends Beam
 {
-    constructor(otherBeam :Beam, n1: Note, n2: Note, context: NotePaintContext)
+    constructor(otherBeam :Beam, n1: Note|null, n2: Note|null, context: NotePaintContext)
     {
         super(otherBeam.notes, context);
         

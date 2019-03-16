@@ -11,7 +11,7 @@ export interface Painter
     unpaint( upToX: number ) : void;
 
     // apply new offset to the graphics stuff and return the new rightmost coordinate (in canvas X)
-    applyOffsetAndRepaint(newOffset: number, context: CanvasRenderingContext2D) : number;
+    applyOffset(shiftLeft: number, context: CanvasRenderingContext2D) : number;
 }
 
 type ScrollerProps =
@@ -64,19 +64,20 @@ export class Scroller extends React.Component< ScrollerProps, ScrollerState>
         window.removeEventListener("resize", this.onResize.bind(this));
     }
 
-    lastTime : number;
+    private lastTime : number;
 
-    leftMargin: number = 10;
-    rightMargin: number = 10;
+    private leftMargin: number = 10;
+    private rightMargin: number = 10;
 
     // relative scroll of the canvas
-    scrollX: number = 0;
-    offsetX: number = 0;
-    rightmostDrawn: number = 0;
+    private scrollX: number = 0;
+    private offsetX: number = 0;
+    private rightmostDrawn: number = 0;
 
     reset() : void
     {
-        this.offsetX += this.scrollX/this.props.zoom;
+        let offsetX = this.scrollX/this.props.zoom;
+        //this.offsetX += this.scrollX/this.props.zoom;
         this.scrollX = 0;
 
         let c = this.canvas.current;
@@ -87,14 +88,11 @@ export class Scroller extends React.Component< ScrollerProps, ScrollerState>
                                 
             if(this.props.painter && ctx)
             {
-                this.rightmostDrawn = this.props.painter.applyOffsetAndRepaint(this.offsetX, ctx);
+                this.rightmostDrawn = this.props.painter.applyOffset(-offsetX, ctx);
+                this.props.painter.unpaint(0);
+                this.props.painter.paint(ctx);
                 
                 let rightWindow = this.state.width + this.rightMargin;
-
-                while ( this.rightmostDrawn < (rightWindow - this.scrollX)/this.props.zoom )
-                {
-                    this.rightmostDrawn = this.props.painter.paint(ctx);
-                }
             }
         }
     }
@@ -129,13 +127,7 @@ export class Scroller extends React.Component< ScrollerProps, ScrollerState>
             {
                 this.props.painter.unpaint((-this.leftMargin - this.scrollX)/zoom);        
                 let ctx = c.getContext("2d");
-                if ( ctx)
-                {
-                    while ( this.rightmostDrawn < (rightWindow - this.scrollX)/this.props.zoom )
-                    {
-                        this.rightmostDrawn = this.props.painter.paint(ctx);
-                    }
-                }
+                this.rightmostDrawn = this.props.painter.paint(ctx);
             }
         }
     }

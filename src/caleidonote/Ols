@@ -1,0 +1,227 @@
+
+<body onresize ="resizeToFit();" onload="resizeToFit();"
+style="margin:0" >
+<div id="maindiv" style="overflow:hidden;">
+<canvas id="canvas" width="100" height="100"
+style="background-color:#fffff0">
+</canvas>
+</div>
+<input id="playstop" type="button" style="width:100px;"><br>
+Speed <input id="fader" type="range" min="0" max="400" value="70">
+<output for="fader" id="speedLabel">100</output><br>
+Zoom <input id="scaleFader" type="range" min="0" max="100" value="30">
+<output for="scaleFader" id="scaleLabel">1.0</output>
+
+<script>
+  
+//global variables
+var maindiv = document.getElementById("maindiv");
+var canvas = document.getElementById("canvas");
+var playstop = document.getElementById("playstop");
+var fader = document.getElementById("fader");
+
+var ctx = canvas.getContext("2d");
+
+var space = 10;
+
+var minNote = -2;
+var maxNote = 28;
+
+var notes; //initializes it after, it needs Note.js
+
+var canvasHeight=100;
+var zoom = 1;
+
+var scroller;
+var nc;
+
+function startScript()
+{
+  var shift = 0;
+  canvas.style.height = "100";
+  
+  scroller = new Scroller(-10, maindiv.width+10, canvas);
+  scroller.onDraw = function()
+  {
+    drawStaff(0, canvas.width/zoom);
+  }
+  
+  nc = new NoteCreator( scroller );
+  nc.SetNoteDistance(35);
+  bindAndInitUI();
+  
+  /*
+  var halftonesToScaleTimer = setInterval(function()
+  {
+    //give 1 double the probability (it's the preferred one)
+    var a = Math.floor(Math.random()*12.0)%4;
+    if (a==3) a = 1;
+    nc.SetConversionType(a);
+  }, 5000); //change every 5 seconds
+  */
+  var oldNote=0;
+
+  /*function randomPitch()
+  {
+    var halftone = Math.floor(Math.random()*1000000.0)%(maxNote-minNote);
+    oldNote = halftone;
+    return nc.NoteFromHalfTone(halftone);
+  }*/
+  function newHalftone()
+  {
+    return randomWithinInterval(oldNote, 1,7, minNote, maxNote);
+  }
+  
+  //////////////////////////////////
+  // GENERATOR
+  var stepN=0;
+  
+  
+  var dirTranspose = 1;
+  var currTranspose = 0;
+  scroller.SetGenerator( function(s)
+  {
+    ++stepN;
+    
+    if ( currTranspose > 12 )
+    {
+      dirTranspose = -dirTranspose;
+    }
+    if ( currTranspose < 0 )
+    {
+      dirTranspose = -dirTranspose;
+    }
+    currTranspose += dirTranspose;
+    
+    nc.SetTranspose(currTranspose);
+    
+    nc.Chord( C, +0, ChordType.maj );
+    nc.Length(16);
+    nc.Group.Start();
+    nc.Note(C);
+    nc.Note(D);
+    nc.Note(E);
+    nc.Note(G);
+    nc.Group.End();
+    //s.AddSymbol( new Chord(Math.floor(Math.random()*7*100) % 7, stepN%3 - 1, stepN%20, s.cursor ));
+    /*
+    nc.Group.Start();
+    
+      nc.Length(16,1);
+      nc.HalfTone( newHalftone() );
+      nc.Note();
+    //nc.Tie.End();
+    
+      nc.HalfTone( newHalftone() );
+      nc.Note();
+      
+      nc.Length(8);
+      nc.HalfTone( newHalftone() );
+      nc.Note();
+      
+    //nc.Tie.Start();
+      nc.Length(16);
+      nc.HalfTone( newHalftone() );
+      nc.Note();
+      
+    nc.Group.End();
+    
+    nc.Group.Start(nc_nplet);
+      nc.Length(8);
+      nc.HalfTone( newHalftone() );
+      nc.Note();
+      nc.HalfTone( newHalftone() );
+      nc.Note();
+      nc.HalfTone( newHalftone() );
+      nc.Note();
+    nc.Group.End();
+    */
+  } );
+}
+
+
+
+function bindAndInitUI()
+{
+  var speedChange = function( s )
+  {
+    scroller.SetSpeed(s);
+    document.getElementById('speedLabel').value = s;
+  }
+  var updateSpeedChange = function(){ speedChange( fader.value ); }
+  updateSpeedChange();
+  fader.oninput = updateSpeedChange;
+
+  var playstopToggle = function()
+  {
+    if (scroller.IsPlaying())
+    {
+      scroller.Pause();
+      playstop.value = "Play";
+    }
+    else
+    {
+      scroller.Play();
+      playstop.value = "Stop";
+    }
+  }
+  playstopToggle();
+  document.getElementById('playstop').onclick = playstopToggle;
+  
+  var onScaleChange = function( s )
+  {
+    var scale = 1.0 + (s-30)/50.0;
+    scaleChange(scale);
+    document.getElementById('scaleLabel').value = scale;
+  };
+  var updateScaleChange = function(){ onScaleChange( document.getElementById('scaleFader').value ); }
+  updateScaleChange();
+  document.getElementById('scaleFader').oninput = updateScaleChange;
+}
+
+
+function resizeToFit()
+{
+  maindiv.width = window.innerWidth-4;
+  if(scroller)
+  {
+    scroller.right = maindiv.width+10;
+  }
+  scaleChange( zoom );
+}
+
+function scaleChange( s )
+{
+  zoom = s;
+  if ( zoom < 0.3)
+  {
+    zoom = 0.3;
+  }
+  
+  canvas.width  = maindiv.width*2;
+  canvas.height = 400;
+  
+  ctx.resetTransform();
+  ctx.translate(0.5, Math.floor(canvas.height/2) + 0.5);
+  ctx.scale(s,s);
+
+  scroller.Reset();
+};
+
+var loadedScripts = 0;
+function onLoadScript()
+{
+  loadedScripts++;
+  if (loadedScripts==3)
+  {
+    startScript();
+  }
+}
+</script>
+
+<script src="Queue.js" onload="onLoadScript()"></script>
+<script src="Note.js" onload="onLoadScript()"></script>
+<script src="Scroller.js" onload="onLoadScript()"></script>
+
+</body>
+</html>

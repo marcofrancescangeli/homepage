@@ -11,7 +11,7 @@ export class NPlet extends Symbol
     notes :Note[];
     line :Line;
     
-    constructor(notes :Note[], x :number, context :NotePaintContext)
+    constructor(notes :Note[], context :NotePaintContext)
     {
         super(0, context);
         this.above = true;    

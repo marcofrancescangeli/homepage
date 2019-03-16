@@ -1,12 +1,12 @@
 import {Beam} from './PaintElements/Beam'
 import {BeamUnderBeam} from './PaintElements/BeamUnderBeam'
-import {Scroller} from './Scroller'
 import {NotePaintContext} from './PaintElements/NotePaintContext'
 import {Note} from './PaintElements/Note'
 import {Rest} from './PaintElements/Rest'
 import {Chord, ChordType} from './PaintElements/Chord'
 import {Tie} from './PaintElements/Tie'
 import {NPlet} from './PaintElements/NPlet'
+import {Symbol} from './PaintElements/Symbol'
 import * as Utils from './PaintElements/Utils'
 
 var A = 5;
@@ -24,7 +24,11 @@ var toneToDegree = [
     [C, C, D, E, E, F, F, G, G, A, B, B], //some sharps some flats
     [C, D, D, E, E, F, G, G, A, A, B, B], //all flats
 ];
-  
+
+var transposePreferredNote = [ C, D, D, E, E, F, G, G, A, A, B, B];
+
+var nc_nplet = 111;
+
 class NoteGroup
 {
     callback: ((notes:Note[], ...args: any[])=>void);
@@ -78,11 +82,16 @@ class NoteGroup
 }
 
 
-
+interface NodeAdder
+{
+    addSymbol: (s:Symbol)=>void;
+    getCursor: ()=>number;
+    moveCursor: (offset:number)=>number;
+}
 
 export class NoteCreator 
 {
-    private scroller: Scroller;
+    private adder: NodeAdder;
     private conversion : number[] = toneToDegree[0];
     private power = -2;
     private currNote = 0;
@@ -95,10 +104,10 @@ export class NoteCreator
     private group: NoteGroup;
     private tie: NoteGroup;
     private nplet: NoteGroup;
-
-    constructor(scroller: Scroller)
+    
+    constructor(adder: NodeAdder)
     {
-        this.scroller = scroller;
+        this.adder = adder;
 
         this.group = new NoteGroup(
             (notes: Note[], args: Array<any>) => {
@@ -111,13 +120,13 @@ export class NoteCreator
             {
                 var beam = new Beam(notes, this.context);
                 
-                this.scroller.addSymbol( beam );
+                this.adder.addSymbol( beam );
                 
                 this.createSubBeam(beam, notes, 0, notes.length, -4);
                 
                 if (args.length > 0 && args[0] == nc_nplet)
                 {
-                    this.scroller.addSymbol( new NPlet(notes, this.context) );
+                    this.adder.addSymbol( new NPlet(notes, this.context) );
                 }
             }
         });
@@ -144,7 +153,7 @@ export class NoteCreator
         });
         
         this.nplet = new NoteGroup(function(notes){
-            this.scroller.AddSymbol(new NPlet(notes));  
+            this.addSymbol(new NPlet(notes, this.context));  
         });
         
     }
@@ -196,11 +205,11 @@ export class NoteCreator
                     {
                         if ( i == 0 )
                         {
-                            subBeam = new BeamUnderBeam( beam, notesInBeam[firstNote], 0, this.context );
+                            subBeam = new BeamUnderBeam( beam, notesInBeam[firstNote], null, this.context );
                         }
                         else
                         {
-                            subBeam = new BeamUnderBeam( beam, 0, notesInBeam[lastNote], this.context );
+                            subBeam = new BeamUnderBeam( beam, null, notesInBeam[lastNote], this.context );
                         }
                     }
                     else
@@ -208,7 +217,7 @@ export class NoteCreator
                         subBeam = new BeamUnderBeam( beam, notesInBeam[firstNote], notesInBeam[lastNote], this.context );
                     }
 
-                    this.scroller.addSymbol(subBeam);
+                    this.adder.addSymbol(subBeam);
                     if ( power > -6 )
                     {
                         this.createSubBeam( subBeam, notesInBeam, firstNote, index, power - 1 );
@@ -252,16 +261,18 @@ export class NoteCreator
         this.currNote = degree;
         this.alt = alt;
         let targetTone = this.degreeToTone( this.currNote ) + this.alt + this.transpose;
-        let deltaNote = this.transposePreferredNote[ Utils.mod(this.transpose, 12) ] + Math.floor( this.transpose/12 )*7;
-        this.note += deltaNote;
+        let deltaNote = transposePreferredNote[ Utils.mod(this.transpose, 12) ] + Math.floor( this.transpose/12 )*7;
+        this.currNote += deltaNote;
         var resultingTone = this.degreeToTone( this.currNote ) + this.alt; 
         this.alt = targetTone-resultingTone;
     }
     
+    /*
     setConversionType = (i :number) :void =>
     {
-        this.conversion = this.halftonesToScale[i];
+        this.conversion = halftonesToScale[i];
     }
+    */
     
     note = (deg :number, alt :number) :Note =>
     {
@@ -269,30 +280,30 @@ export class NoteCreator
         {
             this.deg(deg, alt);
         }
-        var note = new Note(this.power, this.currNote, this.alt, this.scroller.cursor, this.context);
+        var note = new Note(this.power, this.currNote, this.alt, this.adder.getCursor(), this.context);
         if (this.dots > 0)
         {
             note.dots = this.dots; 
         }
-        this.scroller.cursor += this.noteDistance;
+        this.adder.moveCursor(this.noteDistance);
         
         this.tie.note(note);
         this.group.note(note);
         this.nplet.note(note);
         
-        this.scroller.addSymbol(note);
+        this.adder.addSymbol(note);
         return note;
     }
     
     rest = () :Rest =>
     {
-        var rest = new Rest(this.power, this.scroller.cursor, this.context);
+        var rest = new Rest(this.power, this.adder.getCursor(), this.context);
         if (this.dots > 0)
         {
             rest.dots = this.dots;
         }
-        this.scroller.cursor += this.noteDistance;
-        this.scroller.addSymbol(rest);
+        this.adder.moveCursor(this.noteDistance);
+        this.adder.addSymbol(rest);
         return rest;
     }
     
@@ -311,9 +322,9 @@ export class NoteCreator
         {
             this.deg(note, alt);
         }
-        var chord = new Chord( note, alt, type, this.scroller.cursor, this.context);
+        var chord = new Chord( note, alt, type, this.adder.getCursor(), this.context);
         
-        this.scroller.addSymbol(chord);
+        this.adder.addSymbol(chord);
         return chord;
     }
 };
