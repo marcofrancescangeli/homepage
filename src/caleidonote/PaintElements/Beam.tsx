@@ -18,6 +18,7 @@ export class Beam extends Symbol
         this.line = Beam.findNotesLine(notes);
         this.centerX = (this.line.x1 + this.line.x2)/2;
         this.centerY = (this.line.y1 + this.line.y2)/2;
+        this.barAbove = false;
         // convert to local coordinates
         this.line.move( -this.centerX, -this.centerY );
         this.bb = new BBox(this.line.x1, this.line.y1, this.line.x2-this.line.x1, this.line.y2-this.line.y2);
@@ -54,7 +55,19 @@ export class Beam extends Symbol
                 var hForNote = y - notes[i].centerY;
                 notes[i].setstemH(hForNote);
             }
-            this.moveEnds(notes[0].centerX + notes[0].stem.x-0.5, notes[notes.length-1].centerX + notes[notes.length-1].stem.x+0.5);
+            let x1 = notes[0].centerX-0.5;
+            let x2 = notes[notes.length-1].centerX + 0.5;
+            if (notes[0].stem)
+            {
+                x1+= notes[0].stem.x;
+            }
+            let s = notes[notes.length-1].stem;
+            if (s)
+            {
+                x2+= s.x;
+            }
+
+            this.moveEnds(x1,x2);
             
             this.bb.extendToPoint( this.line.x1, this.line.y1 );
             this.bb.extendToPoint( this.line.x2, this.line.y2 );

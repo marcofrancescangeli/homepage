@@ -24,7 +24,11 @@ class Queue<T>
         let i = begin;
         while( i != end )
         {
-            functor(this.data[i]);
+            let d = this.data[i];
+            if (d)
+            {
+                functor(d);
+            }
             i++;
             if (i == this.size )
             {

@@ -131,7 +131,7 @@ export class NoteCreator
             }
         });
         
-        this.group.onNewNote = function(note)
+        this.group.onNewNote = (note: Note) : boolean =>
         {
             if ( this.power >= -2 )
             {
@@ -145,15 +145,15 @@ export class NoteCreator
             }
         };
 
-        this.tie = new NoteGroup(function(notes){
+        this.tie = new NoteGroup((notes: Note[]):void=>{
             if (notes.length > 1)
             {
-                this.scroller.AddSymbol(new Tie(notes[0],notes[notes.length-1], this.context));                    
+                this.adder.addSymbol(new Tie(notes[0],notes[notes.length-1], this.context));                    
             }
         });
         
-        this.nplet = new NoteGroup(function(notes){
-            this.addSymbol(new NPlet(notes, this.context));  
+        this.nplet = new NoteGroup((notes: Note[]):void =>{
+            this.adder.addSymbol(new NPlet(notes, this.context));  
         });
         
     }
@@ -307,7 +307,7 @@ export class NoteCreator
         return rest;
     }
     
-    chord = (note: number, alt?: number, type?: ChordType) =>
+    chord = (note: number, alt=0, type= ChordType.maj) =>
     {
         if ( alt === undefined )
         {

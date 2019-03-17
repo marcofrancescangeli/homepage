@@ -1,4 +1,4 @@
-export function average( start :number, end :number, what :(number)=>number ) : number
+export function average( start :number, end :number, what :(n:number)=>number ) : number
 {
     var value = 0;
     

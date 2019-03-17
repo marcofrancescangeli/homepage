@@ -127,7 +127,10 @@ export class Scroller extends React.Component< ScrollerProps, ScrollerState>
             {
                 this.props.painter.unpaint((-this.leftMargin - this.scrollX)/zoom);        
                 let ctx = c.getContext("2d");
-                this.rightmostDrawn = this.props.painter.paint(ctx);
+                if (ctx)
+                {
+                    this.rightmostDrawn = this.props.painter.paint(ctx);
+                }
             }
         }
     }

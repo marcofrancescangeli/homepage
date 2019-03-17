@@ -52,6 +52,7 @@ export class Chord extends Symbol
             case 4: this.name = "G"; break;
             case 5: this.name = "A"; break;
             case 6: this.name = "B"; break;
+            default: this.name = "";
         }
     }
     

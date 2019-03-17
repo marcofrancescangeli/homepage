@@ -16,15 +16,23 @@ export class BeamUnderBeam extends Beam
         this.line.move(0,this.barAbove ? context.space*0.6 : -context.space*0.6);
         if (n1 || n2)
         {
-            let x1;
-            let x2;
+            let x1 = 0;
+            let x2 = 0;
             if (n1)
             {
-                x1 = n1.centerX + n1.stem.x;
+                x1 = n1.centerX;
+                if (n1.stem)
+                {
+                    x1+=n1.stem.x;
+                }
             }
             if (n2)
             {
-                x2 = n2.centerX + n2.stem.x;
+                x2 = n2.centerX;
+                if (n2.stem)
+                {
+                    x2+=n2.stem.x;
+                }
             }
             if (!n1)
             {
