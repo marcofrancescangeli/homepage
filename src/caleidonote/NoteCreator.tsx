@@ -9,23 +9,23 @@ import {NPlet} from './PaintElements/NPlet'
 import {Symbol} from './PaintElements/Symbol'
 import * as Utils from './PaintElements/Utils'
 
-var A = 5;
-var B = 6;
-var C = 0;
-var D = 1;
-var E = 2;
-var F = 3;
-var G = 4;
+export const A = 5;
+export const B = 6;
+export const C = 0;
+export const D = 1;
+export const E = 2;
+export const F = 3;
+export const G = 4;
 
-var majorScale = [0,2,4,5,7,9,11];
+export const  majorScale = [0,2,4,5,7,9,11];
 
-var toneToDegree = [
+export const  toneToDegree = [
     [C, C, D, D, E, F, F, G, G, A, A, B], //all sharps
     [C, C, D, E, E, F, F, G, G, A, B, B], //some sharps some flats
     [C, D, D, E, E, F, G, G, A, A, B, B], //all flats
 ];
 
-var transposePreferredNote = [ C, D, D, E, E, F, G, G, A, A, B, B];
+export const  transposePreferredNote = [ C, D, D, E, E, F, G, G, A, A, B, B];
 
 var nc_nplet = 111;
 
@@ -82,7 +82,7 @@ class NoteGroup
 }
 
 
-interface NodeAdder
+export interface NoteAdder
 {
     addSymbol: (s:Symbol)=>void;
     getCursor: ()=>number;
@@ -91,7 +91,7 @@ interface NodeAdder
 
 export class NoteCreator 
 {
-    private adder: NodeAdder;
+    private adder: NoteAdder;
     private conversion : number[] = toneToDegree[0];
     private power = -2;
     private currNote = 0;
@@ -101,11 +101,11 @@ export class NoteCreator
     private transpose :number = 0;
     private context: NotePaintContext = {space: 10};
     
-    private group: NoteGroup;
-    private tie: NoteGroup;
-    private nplet: NoteGroup;
+    group: NoteGroup;
+    tie: NoteGroup;
+    nplet: NoteGroup;
     
-    constructor(adder: NodeAdder)
+    constructor(adder: NoteAdder)
     {
         this.adder = adder;
 
@@ -163,7 +163,7 @@ export class NoteCreator
         this.noteDistance = noteDistance;
     }
     
-    length = ( denominator: number, dots: number ) :void => 
+    length = ( denominator: number, dots: number = 0) :void => 
     {
         switch(denominator)
         {
@@ -274,7 +274,7 @@ export class NoteCreator
     }
     */
     
-    note = (deg :number, alt :number) :Note =>
+    note = (deg :number, alt :number=0) :Note =>
     {
         if ( !(deg === undefined) )
         {

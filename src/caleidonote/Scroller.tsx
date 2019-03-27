@@ -27,7 +27,7 @@ type ScrollerState =
     height: number;
 };
 
-export class Scroller extends React.Component< ScrollerProps, ScrollerState>
+export class Scroller extends React.Component<ScrollerProps, ScrollerState>
 {
     mainDiv : React.RefObject<HTMLDivElement>;
     canvas : React.RefObject<HTMLCanvasElement>;
@@ -54,14 +54,19 @@ export class Scroller extends React.Component< ScrollerProps, ScrollerState>
 
     componentDidMount()
     {
-        window.addEventListener("resize", this.onResize.bind(this));
+        window.addEventListener("resize", this.onResize);
         this.onResize();
-        requestAnimationFrame(this.step.bind(this));
+        requestAnimationFrame(this.step);
     }
 
     componentWillUnmount()
     {
-        window.removeEventListener("resize", this.onResize.bind(this));
+        window.removeEventListener("resize", this.onResize);
+    }
+
+    componentWillReceiveProps( newProps: ScrollerProps )
+    {
+        this.reset();
     }
 
     private lastTime : number;
@@ -74,10 +79,9 @@ export class Scroller extends React.Component< ScrollerProps, ScrollerState>
     private offsetX: number = 0;
     private rightmostDrawn: number = 0;
 
-    reset() : void
+    reset = () : void =>
     {
         let offsetX = this.scrollX/this.props.zoom;
-        //this.offsetX += this.scrollX/this.props.zoom;
         this.scrollX = 0;
 
         let c = this.canvas.current;
@@ -85,21 +89,34 @@ export class Scroller extends React.Component< ScrollerProps, ScrollerState>
         {
             c.style.left = "0px";
             let ctx = c.getContext("2d");
+            
                                 
             if(this.props.painter && ctx)
             {
+                ctx.clearRect(0,0,this.state.width*2, this.state.height);
                 this.rightmostDrawn = this.props.painter.applyOffset(-offsetX, ctx);
                 this.props.painter.unpaint(0);
-                this.props.painter.paint(ctx);
+                this.paintInternal(ctx);
                 
                 let rightWindow = this.state.width + this.rightMargin;
             }
         }
     }
 
-    step( time : number )
+
+    private paintInternal = (ctx: CanvasRenderingContext2D)=>
     {
-        window.requestAnimationFrame(this.step.bind(this));
+        ctx.save();
+        ctx.translate(0,this.state.height/2);
+        ctx.scale(this.props.zoom, this.props.zoom);
+        this.rightmostDrawn = this.props.painter.paint(ctx);
+        ctx.restore();
+    }
+
+
+    step  = ( time : number ) =>
+    {
+        window.requestAnimationFrame(this.step);
     
         var elapsedtime = (time - this.lastTime)/1000.0;
         this.lastTime = time;
@@ -109,13 +126,13 @@ export class Scroller extends React.Component< ScrollerProps, ScrollerState>
 
         if (this.scrollX < -rightWindow)
         {
-          this.reset();
+            this.reset();
         }
         
         let zoom = this.props.zoom;
         //scroll the canvas, so there is no need to redraw the notes
         this.scrollX -= scrollamount * zoom;
-
+        
         let c = this.canvas.current;
         if ( c )
         {
@@ -129,7 +146,7 @@ export class Scroller extends React.Component< ScrollerProps, ScrollerState>
                 let ctx = c.getContext("2d");
                 if (ctx)
                 {
-                    this.rightmostDrawn = this.props.painter.paint(ctx);
+                    this.paintInternal(ctx);
                 }
             }
         }
@@ -137,6 +154,7 @@ export class Scroller extends React.Component< ScrollerProps, ScrollerState>
 
     render()
     {
+        //console.log(this.state);
         return (
         <div ref={this.mainDiv} className="parentDiv">
         {this.state && <canvas ref={this.canvas} className="scrollingDiv" width={this.state.width*2.5} height={this.state.height}/> }
