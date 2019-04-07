@@ -51,6 +51,7 @@ class PainterNote implements Painter, NoteAdder
                 res = right;
             }
         });
+        this.lastElementDrawn = this.elementList.end;
         return res;
     }
 

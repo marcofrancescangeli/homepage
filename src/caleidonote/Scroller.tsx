@@ -96,20 +96,23 @@ export class Scroller extends React.Component<ScrollerProps, ScrollerState>
                 ctx.clearRect(0,0,this.state.width*2, this.state.height);
                 this.rightmostDrawn = this.props.painter.applyOffset(-offsetX, ctx);
                 this.props.painter.unpaint(0);
-                this.paintInternal(ctx);
                 
                 let rightWindow = this.state.width + this.rightMargin;
+                this.paintInternal(ctx, (rightWindow  - this.scrollX)/ this.props.zoom);
             }
         }
     }
 
 
-    private paintInternal = (ctx: CanvasRenderingContext2D)=>
+    private paintInternal = (ctx: CanvasRenderingContext2D, untilX: number)=>
     {
         ctx.save();
         ctx.translate(0,this.state.height/2);
         ctx.scale(this.props.zoom, this.props.zoom);
-        this.rightmostDrawn = this.props.painter.paint(ctx);
+        while (this.rightmostDrawn < untilX)
+        {
+            this.rightmostDrawn = this.props.painter.paint(ctx);
+        }
         ctx.restore();
     }
 
@@ -123,6 +126,7 @@ export class Scroller extends React.Component<ScrollerProps, ScrollerState>
         var scrollamount = this.props.speed * elapsedtime;
         
         let rightWindow = this.state.width + this.rightMargin;
+       
 
         if (this.scrollX < -rightWindow)
         {
@@ -146,7 +150,7 @@ export class Scroller extends React.Component<ScrollerProps, ScrollerState>
                 let ctx = c.getContext("2d");
                 if (ctx)
                 {
-                    this.paintInternal(ctx);
+                    this.paintInternal(ctx, (rightWindow  - this.scrollX)/ zoom);
                 }
             }
         }
