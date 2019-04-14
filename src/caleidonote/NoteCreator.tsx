@@ -8,6 +8,11 @@ import {Tie} from './PaintElements/Tie'
 import {NPlet} from './PaintElements/NPlet'
 import {Symbol} from './PaintElements/Symbol'
 import * as Utils from './PaintElements/Utils'
+import { Staff } from './PaintElements/Staff';
+
+export const flat = -1;
+export const sharp = 1;
+export const natural = 0;
 
 export const A = 5;
 export const B = 6;
@@ -24,6 +29,13 @@ export const  toneToDegree = [
     [C, C, D, E, E, F, F, G, G, A, B, B], //some sharps some flats
     [C, D, D, E, E, F, G, G, A, A, B, B], //all flats
 ];
+
+function getNote(semitone: number, conversion:number[]=toneToDegree[0]) : {degree:number, alt:number}
+{
+    let degree = conversion[semitone];
+    let alt = semitone-majorScale[degree];
+    return {degree,alt};
+}
 
 export const  transposePreferredNote = [ C, D, D, E, E, F, G, G, A, A, B, B];
 
@@ -85,6 +97,7 @@ class NoteGroup
 export interface NoteAdder
 {
     addSymbol: (s:Symbol)=>void;
+    addBackgroundSymbol: (s: Symbol)=>void;
     getCursor: ()=>number;
     moveCursor: (offset:number)=>number;
 }
@@ -108,7 +121,8 @@ export class NoteCreator
     constructor(adder: NoteAdder)
     {
         this.adder = adder;
-
+        this.adder.addBackgroundSymbol(new Staff(this.context));
+        
         this.group = new NoteGroup(
             (notes: Note[], args: Array<any>) => {
             //first beam. 1/8
@@ -155,7 +169,6 @@ export class NoteCreator
         this.nplet = new NoteGroup((notes: Note[]):void =>{
             this.adder.addSymbol(new NPlet(notes, this.context));  
         });
-        
     }
   
     setNoteDistance = ( noteDistance: number ) :void =>

@@ -1,5 +1,6 @@
 import * as React from 'react';
 import './App.css'
+import { drawStaff } from './PaintElements/DrawUtils';
 
 
 export interface Painter
@@ -11,7 +12,10 @@ export interface Painter
     unpaint( upToX: number ) : void;
 
     // apply new offset to the graphics stuff and return the new rightmost coordinate (in canvas X)
-    applyOffset(shiftLeft: number, context: CanvasRenderingContext2D) : number;
+    applyOffset(offset: number, context: CanvasRenderingContext2D) : number;
+    
+    // paint background
+    paintBackground(context: CanvasRenderingContext2D) : void;
 }
 
 type ScrollerProps =
@@ -57,6 +61,7 @@ export class Scroller extends React.Component<ScrollerProps, ScrollerState>
         window.addEventListener("resize", this.onResize);
         this.onResize();
         requestAnimationFrame(this.step);
+        this.reset();
     }
 
     componentWillUnmount()
@@ -76,8 +81,18 @@ export class Scroller extends React.Component<ScrollerProps, ScrollerState>
 
     // relative scroll of the canvas
     private scrollX: number = 0;
-    private offsetX: number = 0;
     private rightmostDrawn: number = 0;
+    private toReset = true;
+
+    private paintBackground = (ctx: CanvasRenderingContext2D) : void =>
+    {
+        ctx.clearRect(0,0,this.state.width*2, this.state.height);
+        ctx.save();
+        ctx.translate(0,this.state.height/2);
+        ctx.scale(this.props.zoom, this.props.zoom);
+        this.props.painter.paintBackground(ctx);
+        ctx.restore();
+    }
 
     reset = () : void =>
     {
@@ -89,12 +104,11 @@ export class Scroller extends React.Component<ScrollerProps, ScrollerState>
         {
             c.style.left = "0px";
             let ctx = c.getContext("2d");
-            
-                                
+                             
             if(this.props.painter && ctx)
             {
-                ctx.clearRect(0,0,this.state.width*2, this.state.height);
-                this.rightmostDrawn = this.props.painter.applyOffset(-offsetX, ctx);
+                this.paintBackground(ctx);
+                this.rightmostDrawn = this.props.painter.applyOffset(offsetX, ctx);
                 this.props.painter.unpaint(0);
                 
                 let rightWindow = this.state.width + this.rightMargin;
@@ -120,6 +134,7 @@ export class Scroller extends React.Component<ScrollerProps, ScrollerState>
     step  = ( time : number ) =>
     {
         window.requestAnimationFrame(this.step);
+
     
         var elapsedtime = (time - this.lastTime)/1000.0;
         this.lastTime = time;
@@ -127,15 +142,15 @@ export class Scroller extends React.Component<ScrollerProps, ScrollerState>
         
         let rightWindow = this.state.width + this.rightMargin;
        
-
-        if (this.scrollX < -rightWindow)
-        {
-            this.reset();
-        }
-        
         let zoom = this.props.zoom;
         //scroll the canvas, so there is no need to redraw the notes
         this.scrollX -= scrollamount * zoom;
+
+        if (this.toReset )
+        {
+            this.toReset = false;
+            this.reset();
+        }
         
         let c = this.canvas.current;
         if ( c )
@@ -153,6 +168,11 @@ export class Scroller extends React.Component<ScrollerProps, ScrollerState>
                     this.paintInternal(ctx, (rightWindow  - this.scrollX)/ zoom);
                 }
             }
+        }
+
+        if (this.scrollX < -rightWindow)
+        {
+            this.toReset = true;
         }
     }
 

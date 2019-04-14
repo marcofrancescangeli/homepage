@@ -10,6 +10,7 @@ import {Symbol} from './PaintElements/Symbol';
 import Queue from './Queue';
 import {NoteCreator, NoteAdder} from './NoteCreator';
 import { Generator, GeneratePattern } from './Generator';
+import { drawStaff } from './PaintElements/DrawUtils';
 
 type AppState = {
     zoom: number,
@@ -26,13 +27,18 @@ class PainterNote implements Painter, NoteAdder
     offset: number = 0;
     rightmost: number = 0;
     cursor: number = 0;
-    creator = new NoteCreator(this);
-        
-    //this should be a queue?
+    creator: NoteCreator;
+
+    backgroundElements = new Array<Symbol>(10);
     elementList: Queue<Symbol> = new Queue<Symbol>(1000);
     lastElementDrawn: number = 0;
 
     generator: Generator = new GeneratePattern();
+
+    constructor()
+    {
+        this.creator = new NoteCreator(this);
+    }
 
     //paint new elements and return the rightmost coordinate (in canvas X)
     paint = (context: CanvasRenderingContext2D) : number =>
@@ -73,17 +79,28 @@ class PainterNote implements Painter, NoteAdder
     }
 
     // apply new offset to the graphics stuff and return the new rightmost coordinate (in canvas X)
-    applyOffset = (shiftLeft: number, context: CanvasRenderingContext2D) : number =>
+    applyOffset = (offset: number, context: CanvasRenderingContext2D) : number =>
     {
-        this.leftmost -= shiftLeft;
+        this.leftmost += offset;
+        this.rightmost += offset;
         this.elementList.forRange(this.elementList.begin, this.elementList.end, (s: Symbol)=>
         {
-            s.centerX += shiftLeft;            
+            s.centerX += offset;            
         });
         
         this.lastElementDrawn = this.elementList.begin;
-
+        this.cursor += offset;
         return this.leftmost;
+    }
+
+    addBackgroundSymbol = (symbol: Symbol) : void =>
+    {
+        this.backgroundElements.push(symbol);
+    }
+
+    paintBackground = (context: CanvasRenderingContext2D) =>
+    {
+        this.backgroundElements.forEach( e=>{ e.draw(context)});
     }
 
     addSymbol = (symbol :Symbol) : number =>
