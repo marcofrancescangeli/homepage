@@ -329,13 +329,12 @@ export class NoteCreator
         else if ( type === undefined )
         {
             this.deg(note, 0);
-            //t = alt;
         }
         else
         {
             this.deg(note, alt);
         }
-        var chord = new Chord( note, alt, type, this.adder.getCursor(), this.context);
+        var chord = new Chord( this.currNote, this.alt, type, this.adder.getCursor(), this.context);
         
         this.adder.addSymbol(chord);
         return chord;

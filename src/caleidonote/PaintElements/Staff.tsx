@@ -21,7 +21,6 @@ export class Staff extends Symbol
             ctx.moveTo(0, y);
             ctx.lineTo(10000, y);
         }
-            
         ctx.stroke();
     }
 }
