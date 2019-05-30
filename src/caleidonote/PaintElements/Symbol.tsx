@@ -73,3 +73,5 @@ export class Symbol
 
     draw = (ctx: CanvasRenderingContext2D) :void => {}
 }
+
+export default Symbol;
