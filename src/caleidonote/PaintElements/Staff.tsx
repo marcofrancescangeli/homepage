@@ -1,8 +1,7 @@
-import {Symbol} from './Symbol';
-import { Note } from './Note';
-import {NotePaintContext} from './NotePaintContext';
+import Symbol from './Symbol';
+import NotePaintContext from './NotePaintContext';
 
-export class Staff extends Symbol
+class Staff extends Symbol
 {
     constructor(context :NotePaintContext)
     {
@@ -24,3 +23,5 @@ export class Staff extends Symbol
         ctx.stroke();
     }
 }
+
+export default Staff

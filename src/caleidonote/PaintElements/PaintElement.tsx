@@ -1,4 +1,4 @@
-export class PaintElement
+class PaintElement
 {    
     x: number = 0;
     y: number = 0;

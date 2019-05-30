@@ -1,4 +1,4 @@
-import {NotePaintContext} from './NotePaintContext'
+import NotePaintContext from './NotePaintContext'
 
 export class BBox
 {
@@ -47,8 +47,7 @@ export class BBox
     }
 }
 
-
-export class Symbol
+class Symbol
 {
     bb = new BBox(0,0,0,0);
     centerX :number;

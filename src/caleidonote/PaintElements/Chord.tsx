@@ -1,5 +1,5 @@
-import {Symbol} from './Symbol'
-import { NotePaintContext } from './NotePaintContext';
+import Symbol from './Symbol'
+import NotePaintContext from './NotePaintContext';
 import * as DrawUtils from './DrawUtils';
 import * as Utils from './Utils';
 
@@ -169,3 +169,5 @@ export class Chord extends Symbol
         ctx.restore();
     }
 };
+
+export default Chord

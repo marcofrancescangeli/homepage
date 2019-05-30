@@ -1,7 +1,7 @@
-import {Beam} from './Beam'
-import {Line} from './Line'
-import {Note} from './Note'
-import {NotePaintContext} from './NotePaintContext'
+import Beam from './Beam'
+import Line from './Line'
+import Note from './Note'
+import NotePaintContext from './NotePaintContext'
 
 export class BeamUnderBeam extends Beam
 {
@@ -53,3 +53,5 @@ export class BeamUnderBeam extends Beam
         this.bb.extendToPoint(this.line.x2, this.line.y2);
     }
 }
+
+export default BeamUnderBeam

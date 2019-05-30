@@ -1,8 +1,8 @@
-import {NotePaintContext} from './NotePaintContext'
-import {Symbol} from './Symbol'
+import NotePaintContext from './NotePaintContext'
+import Symbol from './Symbol'
 import * as DrawUtils from './DrawUtils'
 
-export class Note extends Symbol
+class Note extends Symbol
 {
     pitch :number;
     alt :number;
@@ -173,3 +173,5 @@ export class Note extends Symbol
         ctx.restore();
     };
 };
+
+export default Note

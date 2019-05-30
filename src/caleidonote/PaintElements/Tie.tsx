@@ -1,8 +1,8 @@
-import {Symbol} from './Symbol';
-import { Note } from './Note';
-import {NotePaintContext} from './NotePaintContext';
+import Symbol from './Symbol';
+import Note from './Note';
+import NotePaintContext from './NotePaintContext';
 
-export class Tie extends Symbol
+class Tie extends Symbol
 {
     dX :number;
     dY :number;
@@ -34,3 +34,5 @@ export class Tie extends Symbol
         ctx.stroke();
     }
 };
+
+export default Tie

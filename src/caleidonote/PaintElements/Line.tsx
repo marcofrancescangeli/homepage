@@ -1,4 +1,4 @@
-export class Line
+class Line
 {
     x1: number;
     y1: number;

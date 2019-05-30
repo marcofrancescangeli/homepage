@@ -1,11 +1,11 @@
-import {NotePaintContext} from './NotePaintContext'
-import {Symbol} from './Symbol'
+import NotePaintContext from './NotePaintContext'
+import Symbol from './Symbol'
 import * as Utils from './Utils'
-import {Note} from './Note'
-import {Line} from './Line'
+import Note from './Note'
+import Line from './Line'
 
 // Triplets and such. All of the notes have to be passed
-export class NPlet extends Symbol
+class NPlet extends Symbol
 {
     above :boolean;
     notes :Note[];
@@ -76,3 +76,5 @@ export class NPlet extends Symbol
         ctx.fillText(this.notes.length.toString(), this.centerX, this.centerY);
     };
 };
+
+export default NPlet

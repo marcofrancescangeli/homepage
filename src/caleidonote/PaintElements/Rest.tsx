@@ -1,8 +1,8 @@
-import {Symbol} from './Symbol'
+import Symbol from './Symbol'
 import * as DrawUtils from './DrawUtils'
-import {NotePaintContext} from './NotePaintContext'
+import NotePaintContext from './NotePaintContext'
 
-export class Rest extends Symbol
+class Rest extends Symbol
 {
     doDraw: ((ctx: CanvasRenderingContext2D)=>void) | null = null;
     dots :number = 0;
@@ -168,3 +168,5 @@ export class Rest extends Symbol
         ctx.restore();
     }
 };
+
+export default Rest

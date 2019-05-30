@@ -1,14 +1,15 @@
-import {Beam} from './PaintElements/Beam'
-import {BeamUnderBeam} from './PaintElements/BeamUnderBeam'
-import {NotePaintContext} from './PaintElements/NotePaintContext'
-import {Note} from './PaintElements/Note'
-import {Rest} from './PaintElements/Rest'
-import {Chord, ChordType} from './PaintElements/Chord'
-import {Tie} from './PaintElements/Tie'
-import {NPlet} from './PaintElements/NPlet'
-import {Symbol} from './PaintElements/Symbol'
+import Beam from './PaintElements/Beam'
+import BeamUnderBeam from './PaintElements/BeamUnderBeam'
+import NotePaintContext from './PaintElements/NotePaintContext'
+import Note from './PaintElements/Note'
+import Rest from './PaintElements/Rest'
+import Chord, {ChordType} from './PaintElements/Chord'
+import Tie from './PaintElements/Tie'
+import NPlet from './PaintElements/NPlet'
+import Symbol from './PaintElements/Symbol'
 import * as Utils from './PaintElements/Utils'
-import { Staff } from './PaintElements/Staff';
+import Staff from './PaintElements/Staff'
+import NoteGroup from './NoteGroup'
 
 export const flat = -1;
 export const sharp = 1;
@@ -41,57 +42,6 @@ export const  transposePreferredNote = [ C, D, D, E, E, F, G, G, A, A, B, B];
 
 var nc_nplet = 111;
 
-class NoteGroup
-{
-    callback: ((notes:Note[], ...args: any[])=>void);
-
-    constructor( callback :(notes:Array<Note>, ...args: any[])=>void )
-    {
-        this.callback = callback;
-    }
-
-    private inside : boolean = false;
-    private notes : Note[] = [];
-    private arguments : any[] = [];
-    
-    start = (...args: any[]) =>
-    {
-        this.end();
-        this.inside = true;
-        this.arguments = args;
-    }
-
-    end = () =>
-    {
-        if (this.notes.length > 0)
-        {
-            this.callback(this.notes, this.arguments);
-        }
-        this.inside = false;
-        this.notes = [];
-    }
-    in = () : boolean => { return this.inside; }
-    
-    note = (note: Note) : void =>
-    {
-        if (this.inside)
-        {
-            if (this.onNewNote(note))
-            {
-                this.notes.push(note);
-            }
-            else
-            {
-                this.start();
-            }
-        }
-    }
-        
-    onNewNote = (note: Note) : boolean =>
-    {
-        return true;
-    }
-}
 
 
 export interface NoteAdder

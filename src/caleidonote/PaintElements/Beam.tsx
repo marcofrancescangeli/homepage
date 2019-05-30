@@ -1,7 +1,7 @@
-import {Symbol, BBox} from './Symbol'
-import {Line} from './Line'
-import {Note} from './Note'
-import { NotePaintContext } from './NotePaintContext';
+import Symbol, {BBox} from './Symbol'
+import Line from './Line'
+import Note from './Note'
+import NotePaintContext from './NotePaintContext';
 import * as Utils from './Utils'
 
 
@@ -117,3 +117,5 @@ export class Beam extends Symbol
         ctx.restore();
     };
 }
+
+export default Beam
