@@ -30,7 +30,7 @@ class NPlet extends Symbol
 
         var avgYLeft = Utils.average(0, halfNotes, yFunc);
         var avgYRight = Utils.average(halfNotes, notes.length, yFunc);
-        var avgY = (avgYLeft + avgYRight)/2;
+        //var avgY = (avgYLeft + avgYRight)/2;
         
         var avgXLeft = Utils.average(0, halfNotes, function(i){ return notes[i].centerX; });
         var avgXRight = Utils.average(halfNotes, notes.length, function(i){ return notes[i].centerX; });

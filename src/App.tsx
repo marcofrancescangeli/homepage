@@ -1,6 +1,5 @@
 import * as React from 'react';
 import './App.css';
-import { string } from 'prop-types';
 import CV from './pages/CV';
 import Binaural from './pages/Binaural';
 import Caleidonote from './pages/Caleidonote';
@@ -74,15 +73,16 @@ class App extends React.Component<{}, AppStatus> {
     }
 
     let buttons : any[] = [];
-    Object.keys(Section).forEach( key => {
-        let val = Section[key as any] as Section;
+
+    Object.values(Section).forEach( val => {
         let className = "barItem button";
-        if (val == this.state.section)
+        if (val === this.state.section)
         {
           className += " current";
         }
+        
         buttons.push(
-          <a key={key} className={className} onClick={((event: any) => this.switchTo(val)) }>{val}</a>
+          <button key={val} className={className} onClick={((event: any) => this.switchTo(val)) }>{val}</button>
         )
       }
     );
@@ -97,12 +97,11 @@ class App extends React.Component<{}, AppStatus> {
     return (
       <React.Fragment>
           <div className={sideBarClass}>
-            {this.state.sideBarExpanded && <a className="hideMenuButton" onClick={((event: any) => this.toggleCollapse())}><FaAngleLeft/></a>}
+            {this.state.sideBarExpanded && <button className="hideMenuButton" onClick={((event: any) => this.toggleCollapse())}><FaAngleLeft/></button>}
             <h3 className="barItem">Menu</h3>
             {buttons.map(bt => bt)}
           </div>
-          {!this.state.sideBarExpanded && <a className="showMenuButton" onClick={((event: any) => this.toggleCollapse())}><FaAngleRight/></a>}
-            
+          {!this.state.sideBarExpanded && <button className="showMenuButton" onClick={((event: any) => this.toggleCollapse())}><FaAngleRight/></button>}
           <div className={appBodyClass}>
           {el}
           </div>

@@ -12,7 +12,7 @@ class Queue<T>
         this.data = new Array<T>(this.size);      
     }
   
-    isEmpty = () : boolean => { return this.end == this.begin; }
+    isEmpty = () : boolean => { return this.end === this.begin; }
 
     forEach = (functor:(a:T)=>void) =>
     {
@@ -22,7 +22,7 @@ class Queue<T>
     forRange = (begin:number, end:number, functor: (a:T)=>void) : void=>
     {
         let i = begin;
-        while( i != end )
+        while( i !== end )
         {
             let d = this.data[i];
             if (d)
@@ -30,7 +30,7 @@ class Queue<T>
                 functor(d);
             }
             i++;
-            if (i == this.size )
+            if (i === this.size )
             {
                 i = 0;
             }
@@ -41,7 +41,7 @@ class Queue<T>
     {
         this.data[this.end] = what;
         this.end++;
-        if (this.end == this.size )
+        if (this.end === this.size )
         {
             this.end = 0;
         }
@@ -56,7 +56,7 @@ class Queue<T>
         this.data[this.begin] = undefined;
         
         this.begin++;
-        if (this.begin == this.size )
+        if (this.begin === this.size )
         {
             this.begin = 0;
         }

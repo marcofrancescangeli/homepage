@@ -44,7 +44,7 @@ export function drawDots( x: number, pitch: number, dots: number, ctx: CanvasRen
     {
         let _y = 0;
         let _x = x;
-        if ( pitch % 2 == 0 )
+        if ( pitch % 2 === 0 )
         {
             _y = -0.3;
         }

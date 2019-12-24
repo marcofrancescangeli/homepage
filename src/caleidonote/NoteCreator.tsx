@@ -30,14 +30,14 @@ export const  toneToDegree = [
     [C, C, D, E, E, F, F, G, G, A, B, B], //some sharps some flats
     [C, D, D, E, E, F, G, G, A, A, B, B], //all flats
 ];
-
+/*
 function getNote(semitone: number, conversion:number[]=toneToDegree[0]) : {degree:number, alt:number}
 {
     let degree = conversion[semitone];
     let alt = semitone-majorScale[degree];
     return {degree,alt};
 }
-
+*/
 export const  transposePreferredNote = [ C, D, D, E, E, F, G, G, A, A, B, B];
 
 var nc_nplet = 111;
@@ -76,7 +76,7 @@ export class NoteCreator
         this.group = new NoteGroup(
             (notes: Note[], args: Array<any>) => {
             //first beam. 1/8
-            if ( notes.length == 1 )
+            if ( notes.length === 1 )
             {
                 notes[0].drawFlag = true;
             }
@@ -88,7 +88,7 @@ export class NoteCreator
                 
                 this.createSubBeam(beam, notes, 0, notes.length, -4);
                 
-                if (args.length > 0 && args[0] == nc_nplet)
+                if (args.length > 0 && args[0] === nc_nplet)
                 {
                     this.adder.addSymbol( new NPlet(notes, this.context) );
                 }
@@ -153,7 +153,7 @@ export class NoteCreator
         {
             if ( inBeam )
             {
-                if ( firstNote == -1 )
+                if ( firstNote === -1 )
                 {
                     firstNote = i;
                 }
@@ -164,9 +164,9 @@ export class NoteCreator
                 {
                     var subBeam;
                     var lastNote = index-1;
-                    if ( firstNote == lastNote )
+                    if ( firstNote === lastNote )
                     {
-                        if ( i == 0 )
+                        if ( i === 0 )
                         {
                             subBeam = new BeamUnderBeam( beam, notesInBeam[firstNote], null, this.context );
                         }

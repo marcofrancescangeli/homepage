@@ -39,21 +39,22 @@ export class Beam extends Symbol
             
             this.line.move(0,h);
             
-            for ( var i = 0; i < notes.length; ++i)
+            for (let j in notes)
             {
-                var y = this.getY(notes[i].centerX + notes[i].getstemX(this.barAbove));
-                var hForNote = y - notes[i].centerY;
+                let note = notes[j];
+                var y = this.getY(note.centerX + note.getstemX(this.barAbove));
+                var hForNote = y - note.centerY;
                 if ( (this.barAbove && hForNote > minH) || (!this.barAbove && hForNote < minH) )
                 {
                     this.line.move(0,minH - hForNote);
                 }
             }
             
-            for ( var i = 0; i < notes.length; ++i)
+            for (let j in notes)
             {
-                var y = this.getY(notes[i].centerX + notes[i].getstemX(this.barAbove));
-                var hForNote = y - notes[i].centerY;
-                notes[i].setstemH(hForNote);
+                let note = notes[j];
+                var _y = this.getY(note.centerX + note.getstemX(this.barAbove));
+                note.setstemH(_y - note.centerY);
             }
             let x1 = notes[0].centerX-0.5;
             let x2 = notes[notes.length-1].centerX + 0.5;

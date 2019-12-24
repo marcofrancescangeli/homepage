@@ -2,7 +2,7 @@ import Painter from './Painter'
 import Symbol from './PaintElements/Symbol';
 import Queue from './Queue';
 import {NoteCreator, NoteAdder} from './NoteCreator';
-import { Generator, GeneratePattern } from './Generator';
+import { Generator } from './Generator';
 
 class PainterNote implements Painter, NoteAdder
 {
@@ -16,17 +16,18 @@ class PainterNote implements Painter, NoteAdder
     elementList: Queue<Symbol> = new Queue<Symbol>(1000);
     lastElementDrawn: number = 0;
 
-    generator: Generator = new GeneratePattern();
+    generator: Generator;
 
-    constructor()
+    constructor(generator: Generator)
     {
+        this.generator = generator;
         this.creator = new NoteCreator(this);
     }
 
     //paint new elements and return the rightmost coordinate (in canvas X)
     paint = (context: CanvasRenderingContext2D) : number =>
     {
-        if ( this.lastElementDrawn==this.elementList.end) 
+        if ( this.lastElementDrawn === this.elementList.end) 
         {
             this.generator.generate(this.creator);
         }

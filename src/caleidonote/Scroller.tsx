@@ -53,9 +53,14 @@ export class Scroller extends React.Component<ScrollerProps, ScrollerState>
         window.removeEventListener("resize", this.onResize);
     }
 
-    componentWillReceiveProps( newProps: ScrollerProps )
+    
+
+    componentDidUpdate( prevProps: ScrollerProps )
     {
-        this.reset();
+        if (this.props.zoom !== prevProps.zoom)
+        {
+            this.reset();
+        }
     }
 
     private lastTime : number;

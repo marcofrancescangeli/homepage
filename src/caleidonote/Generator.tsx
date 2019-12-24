@@ -29,6 +29,9 @@ export class GeneratePattern implements Generator
         
         nc.setTranspose(this.currTranspose);
         
+        // in theory I should be able to write the next as
+        // [Cmaj] 16(CDEG)
+
         nc.chord( NC.C, +0, ChordType.maj );
         nc.length(16);
         nc.group.start();
@@ -37,6 +40,9 @@ export class GeneratePattern implements Generator
         nc.note(NC.E);
         nc.note(NC.G);
         nc.group.end();
+
+        // or [Cmaj] C16 DEF
+        // 
         //s.AddSymbol( new Chord(Math.floor(Math.random()*7*100) % 7, stepN%3 - 1, stepN%20, s.cursor ));
         /*
         nc.Group.Start();

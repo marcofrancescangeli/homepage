@@ -73,15 +73,15 @@ class Note extends Symbol
         //ctx.stroke();
         ctx.lineWidth = 1;
         
-        var y = this.context.space * 3 - this.pitch * this.context.space/2;
+        let y = this.context.space * 3 - this.pitch * this.context.space/2;
         
         
         //strokes under/above staff
         if ( this.pitch <=0 )
         {
-            for ( var pitchLine = 0; pitchLine >= this.pitch; pitchLine -= 2 )
+            for ( let pitchLine = 0; pitchLine >= this.pitch; pitchLine -= 2 )
             {
-                var yLine = this.context.space * 3 - pitchLine * this.context.space/2;
+                let yLine = this.context.space * 3 - pitchLine * this.context.space/2;
                 ctx.beginPath();
                 ctx.moveTo(this.centerX-this.context.space*1.1, yLine);
                 ctx.lineTo(this.centerX+this.context.space*1.1, yLine);
@@ -90,9 +90,9 @@ class Note extends Symbol
         }
         if ( this.pitch >= 12 )
         {
-            for ( var pitchLine = 12; pitchLine <= this.pitch; pitchLine += 2 )
+            for ( let pitchLine = 12; pitchLine <= this.pitch; pitchLine += 2 )
             {
-                var yLine = this.context.space * 3 - pitchLine * this.context.space/2;
+                let yLine = this.context.space * 3 - pitchLine * this.context.space/2;
                 ctx.beginPath();
                 ctx.moveTo(this.centerX-this.context.space*1.1, yLine);
                 ctx.lineTo(this.centerX+this.context.space*1.1, yLine);
@@ -159,12 +159,12 @@ class Note extends Symbol
         DrawUtils.drawDots(1.3, this.pitch, this.dots, ctx);
         
         // Draw sharp/flat
-        if ( this.alt == -1 )
+        if ( this.alt === -1 )
         {
             ctx.translate(-1.8,0.2);
             DrawUtils.drawFlat(ctx);
         }
-        else if ( this.alt == 1 )
+        else if ( this.alt === 1 )
         {
             ctx.translate(-1.8,0);
             DrawUtils.drawSharp(ctx);

@@ -64,19 +64,19 @@ export class Chord extends Symbol
         ctx.fillText(this.name, 0, 0);
         ctx.translate(ctx.measureText(this.name).width+3,0);
         
-        if ( this.alt != 0)
+        if ( this.alt !== 0)
         {
             //Flat/Sharp
             var xOffset = 0;
             ctx.save();
             ctx.scale(7,7);
-            if (this.alt == -1)
+            if (this.alt === -1)
             {
                 ctx.translate(0.0,-0.2);
                 DrawUtils.drawFlat(ctx);
                 xOffset = 7;
             }
-            else if (this.alt == 1)
+            else if (this.alt === 1)
             {
                 ctx.translate(0.2,-0.9);
                 DrawUtils.drawSharp(ctx);
@@ -88,18 +88,18 @@ export class Chord extends Symbol
         
         //minor
         
-        if (this.type == ChordType.m 
-        || this.type == ChordType.m6 
-        || this.type == ChordType.m7
-        || this.type == ChordType.mMaj7)
+        if (this.type === ChordType.m 
+        || this.type === ChordType.m6 
+        || this.type === ChordType.m7
+        || this.type === ChordType.mMaj7)
         {
             ctx.fillText("-", 0, 0);
             ctx.translate(ctx.measureText("-").width+2,0);
         }
-        else if (this.type == ChordType.aug
-        || this.type == ChordType.aug7
-        || this.type == ChordType.aug9
-        || this.type == ChordType.augMaj7)
+        else if (this.type === ChordType.aug
+        || this.type === ChordType.aug7
+        || this.type === ChordType.aug9
+        || this.type === ChordType.augMaj7)
         {
             ctx.fillText("+", 0, 0);
             ctx.translate(ctx.measureText("+").width+2,0);
@@ -122,8 +122,8 @@ export class Chord extends Symbol
         
         ctx.lineWidth = 2;
         
-        if (this.type == ChordType.dim
-        || this.type == ChordType.dim7)
+        if (this.type === ChordType.dim
+        || this.type === ChordType.dim7)
         {
             ctx.beginPath();
             ctx.arc(3,-7, 4, 0, Math.PI*2);
@@ -131,7 +131,7 @@ export class Chord extends Symbol
             ctx.translate(10,0);
         }
         
-        if (this.type == ChordType.hdim)
+        if (this.type === ChordType.hdim)
         {
             ctx.beginPath();
             ctx.arc(3,-7, 4, 0, Math.PI*2);
