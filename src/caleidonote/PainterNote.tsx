@@ -16,6 +16,14 @@ class PainterNote implements Painter, NoteAdder
     elementList: Queue<Symbol> = new Queue<Symbol>(1000);
     lastElementDrawn: number = 0;
 
+    /*
+    this should only be given a Generator object (that has a function* method) which simply generates Symbols.
+    The generator might have a Note Creator, which also has a generator. Can I pipe generators?
+
+    The note creator object 
+
+    */
+
     generator: Generator;
 
     constructor(generator: Generator)

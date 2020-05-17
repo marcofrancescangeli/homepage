@@ -6,7 +6,7 @@ import SimpleSlider from './SimpleSlider'
 import { Button, Input } from '@material-ui/core'
 import './App.css';
 import { FaPlay, FaStop } from 'react-icons/fa';
-import { Generator, GeneratePattern } from './Generator';
+import { GeneratePattern } from './Generator';
 
 type AppState = {
     zoom: number,
@@ -18,7 +18,7 @@ type AppState = {
 
 class App extends React.Component<{},AppState>
 {   
-    generator: Generator = new GeneratePattern();
+    generator: GeneratePattern = new GeneratePattern();
     painter: PainterNote = new PainterNote(this.generator);
     
     constructor(props: any)
@@ -29,8 +29,10 @@ class App extends React.Component<{},AppState>
             zoom: 1,
             speed: 70,
             playing: true,
-            generator: "CDEF"
+            generator: this.generator.generatorString
         }
+
+        this.generator.onGeneratorStringChanged.subscribe( ()=>{this.setState({generator:this.generator.generatorString});});
     }
 
     private onTogglePlay = () =>
@@ -48,7 +50,7 @@ class App extends React.Component<{},AppState>
 
     private onChangeGenerator = (event:React.ChangeEvent<HTMLInputElement>) => {
         let newVal = event.target.value;
-        this.setState({generator:newVal});
+        this.generator.generatorString = newVal;
     }
 
     render()

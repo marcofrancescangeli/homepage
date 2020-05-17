@@ -64,9 +64,25 @@ export class NoteCreator
     private transpose :number = 0;
     private context: NotePaintContext = {space: 10};
     
-    group: NoteGroup;
-    tie: NoteGroup;
-    nplet: NoteGroup;
+    public group: NoteGroup;
+    public tie: NoteGroup;
+    public nplet: NoteGroup;
+
+    // make this based on a flat list of commands, and have a big switch.
+    // the second step is to do a string interpreter of those commands (simple forward syntax check)
+    // and call the big switch thingy.
+    // I need to store the symbols created as a queue and return a generator consuming this queue, and from the actual
+    // generator I'll have to call the next note creator method only after the queue is all yielded.
+    /*
+    I'd like this to be used by the generators.
+    Say I keep this as it is. Using this adder to be called whwnever there is a new symbol to add.
+    From outside I have a generator function which has the adder implementation calling yield with the symbol.
+
+    see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/yield*
+
+    This means I can have every single function in NoteCreator returning a function*, and the real generator will
+    call yield* noteAdder.f() for each one. This is amazing :-)
+    */
     
     constructor(adder: NoteAdder)
     {

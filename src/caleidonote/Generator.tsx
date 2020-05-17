@@ -1,18 +1,39 @@
 import * as NC from "./NoteCreator";
 import { ChordType } from "./PaintElements/Chord";
+import { Signal } from "./Signal";
 
 export interface Generator
 {
-    generate:(nc: NC.NoteCreator)=>void;    
+    generate:(nc: NC.NoteCreator)=>void;
 }
-
 
 export class GeneratePattern implements Generator
 {
-    stepN=0;
+    public onGeneratorStringChanged = new Signal();
+
+    set generatorString( generatorString : string )
+    {
+        if (generatorString !== this.m_generatorString)
+        {
+            this.m_generatorString = generatorString;
+            this.onGeneratorStringChanged.fire();
+        }
+    }
+
+    get generatorString() : string { return this.m_generatorString; }
+
+    private m_generatorString : string = "CDEF";
+
+    function* generator() : Generator<number, string, boolean>{
+
+    }
+
     
-    dirTranspose = 1;
-    currTranspose = 0;
+    private stepN=0;
+    
+    private dirTranspose = 1;
+    private currTranspose = 0;
+
     generate = (nc: NC.NoteCreator) : void =>
     {
         ++this.stepN;
