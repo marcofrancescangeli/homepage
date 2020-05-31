@@ -75,7 +75,7 @@ class PainterNote implements Painter
         });
         
         this.lastElementDrawn = this.elementList.begin;
-        this.generator.moveCursor(offset);
+        this.generator.applyOffset(offset);
         return this.leftmost;
     }
 

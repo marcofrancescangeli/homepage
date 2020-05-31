@@ -8,7 +8,7 @@ export interface Generator
 {
     fetchSymbol:()=>Symbol | undefined;
     getBackgroundSymbols:()=>Symbol[];
-    moveCursor:(offset:number)=>void;
+    applyOffset:(offset: number)=>void;
 }
 
 export class GeneratePattern implements Generator
@@ -89,6 +89,15 @@ export class GeneratePattern implements Generator
     moveCursor = (offset: number) : void=>
     {
         this.noteCreator.moveCursor(offset);
+    }
+
+    applyOffset = (offset: number) : void=>
+    {
+        this.noteCreator.moveCursor(offset);
+        this.m_buffer.forEach((s: Symbol)=>
+        {
+            s.centerX += offset;
+        }); 
     }
 
     *generator()
