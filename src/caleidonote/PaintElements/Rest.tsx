@@ -7,9 +7,10 @@ class Rest extends Symbol
     doDraw: ((ctx: CanvasRenderingContext2D)=>void) | null = null;
     dots :number = 0;
     
-    constructor(power: number, x: number, context: NotePaintContext)
+    constructor(power: number, cursor: number, context: NotePaintContext)
     {
-        super(x, context);
+        super(0, context);
+        this.centerX = cursor;
         switch (power)
         {
             case 0:

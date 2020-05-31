@@ -2,13 +2,6 @@ import Note from './PaintElements/Note'
 
 class NoteGroup
 {
-    callback: ((notes:Note[], ...args: any[])=>void);
-
-    constructor( callback :(notes:Array<Note>, ...args: any[])=>void )
-    {
-        this.callback = callback;
-    }
-
     private inside : boolean = false;
     private notes : Note[] = [];
     private arguments : any[] = [];
@@ -22,12 +15,10 @@ class NoteGroup
 
     end = () =>
     {
-        if (this.notes.length > 0)
-        {
-            this.callback(this.notes, this.arguments);
-        }
+        let toReturn = {notes: this.notes, arguments:this.arguments};
         this.inside = false;
         this.notes = [];
+        return toReturn;
     }
     in = () : boolean => { return this.inside; }
     

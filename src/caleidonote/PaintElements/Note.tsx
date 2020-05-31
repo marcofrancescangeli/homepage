@@ -12,14 +12,15 @@ class Note extends Symbol
     stem :{x:number, y:number, h:number}|null = null;
     dots :number = 0;
 
-    constructor (power: number, note: number, alt: number, x: number, context: NotePaintContext)
+    constructor (power: number, note: number, alt: number, cursor: number, context: NotePaintContext)
     {
-        super(x, context);
+        super(0, context);
 
         this.pitch = note;
         this.alt = alt;
         this.power = power;
-        this.context = context;     
+        this.context = context;  
+        this.centerX = cursor;
         this.centerY = context.space * 3 - this.pitch * context.space/2;
         if ( this.power < 0 )
         {

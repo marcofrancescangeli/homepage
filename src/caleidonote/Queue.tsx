@@ -1,18 +1,20 @@
 class Queue<T>
 {
-    size: number;
+    maxSize: number;
     data : Array<T|undefined>;
     begin: number = 0;
     end: number = 0;
     constructor(size: number)
     {
-        this.size = size;
+        this.maxSize = size;
         this.begin = 0;
         this.end = 0;
-        this.data = new Array<T>(this.size);      
+        this.data = new Array<T>(this.maxSize);      
     }
   
     isEmpty = () : boolean => { return this.end === this.begin; }
+
+
 
     forEach = (functor:(a:T)=>void) =>
     {
@@ -30,7 +32,7 @@ class Queue<T>
                 functor(d);
             }
             i++;
-            if (i === this.size )
+            if (i === this.maxSize )
             {
                 i = 0;
             }
@@ -41,7 +43,7 @@ class Queue<T>
     {
         this.data[this.end] = what;
         this.end++;
-        if (this.end === this.size )
+        if (this.end === this.maxSize )
         {
             this.end = 0;
         }
@@ -56,7 +58,7 @@ class Queue<T>
         this.data[this.begin] = undefined;
         
         this.begin++;
-        if (this.begin === this.size )
+        if (this.begin === this.maxSize )
         {
             this.begin = 0;
         }
@@ -66,6 +68,11 @@ class Queue<T>
     {
         return this.data[this.begin];
     }  
+
+    size = () : number =>
+    {
+        return (this.end-this.begin + this.maxSize) % this.maxSize;
+    }
 };
 
 export default Queue

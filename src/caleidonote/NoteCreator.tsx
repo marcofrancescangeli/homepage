@@ -54,19 +54,66 @@ export interface NoteAdder
 
 export class NoteCreator 
 {
-    private adder: NoteAdder;
     private conversion : number[] = toneToDegree[0];
     private power = -2;
     private currNote = 0;
     private alt = 0;
-    private noteDistance = 45;
     private dots :number = 0;
     private transpose :number = 0;
     private context: NotePaintContext = {space: 10};
+    private cursor = 0;
+    private linkedToPrevious = false;
+
+    isLinkedToPrevious = ()=>{return this.linkedToPrevious;}
     
-    public group: NoteGroup;
-    public tie: NoteGroup;
-    public nplet: NoteGroup;
+    moveCursor = (offset:number)=>{this.cursor += offset;}
+
+    private group: NoteGroup = new NoteGroup();
+    startGroup()
+    {
+        this.group.start();
+    }
+    startNpletGroup() { this.group.start(nc_nplet);}
+    * endGroup() {
+        let {notes, arguments:args} = this.group.end();
+        //first beam. 1/8
+        if ( notes.length === 1 )
+        {
+            notes[0].drawFlag = true;
+        }
+        else if ( notes.length > 1 )
+        {
+            var beam = new Beam(notes, this.context);
+            
+            yield beam;
+            yield* this.generateSubBeam(beam, notes, 0, notes.length, -4);
+            
+            if (args.length > 0 && args[0] === nc_nplet)
+            {
+                yield new NPlet(notes, this.context);
+            }
+        }
+        this.cursor += this.context.space;
+        this.linkedToPrevious = false;
+    }
+
+    private tie: NoteGroup = new NoteGroup();
+    startTie() { this.tie.start();}
+    * endTie() {
+        let {notes} = this.tie.end();
+        if (notes.length > 1)
+        {
+            yield new Tie(notes[0],notes[notes.length-1], this.context);                    
+        }
+    }
+
+    private nplet: NoteGroup = new NoteGroup();
+    startNplet() { this.nplet.start();}
+    * endNplet() {
+        let {notes} = this.nplet.end();
+        yield new NPlet(notes, this.context);
+    }
+
 
     // make this based on a flat list of commands, and have a big switch.
     // the second step is to do a string interpreter of those commands (simple forward syntax check)
@@ -84,33 +131,8 @@ export class NoteCreator
     call yield* noteAdder.f() for each one. This is amazing :-)
     */
     
-    constructor(adder: NoteAdder)
+    constructor()
     {
-        this.adder = adder;
-        this.adder.addBackgroundSymbol(new Staff(this.context));
-        
-        this.group = new NoteGroup(
-            (notes: Note[], args: Array<any>) => {
-            //first beam. 1/8
-            if ( notes.length === 1 )
-            {
-                notes[0].drawFlag = true;
-            }
-            else if ( notes.length > 1 )
-            {
-                var beam = new Beam(notes, this.context);
-                
-                this.adder.addSymbol( beam );
-                
-                this.createSubBeam(beam, notes, 0, notes.length, -4);
-                
-                if (args.length > 0 && args[0] === nc_nplet)
-                {
-                    this.adder.addSymbol( new NPlet(notes, this.context) );
-                }
-            }
-        });
-        
         this.group.onNewNote = (note: Note) : boolean =>
         {
             if ( this.power >= -2 )
@@ -124,23 +146,39 @@ export class NoteCreator
                 return true;            
             }
         };
+    }
 
-        this.tie = new NoteGroup((notes: Note[]):void=>{
-            if (notes.length > 1)
-            {
-                this.adder.addSymbol(new Tie(notes[0],notes[notes.length-1], this.context));                    
-            }
-        });
-        
-        this.nplet = new NoteGroup((notes: Note[]):void =>{
-            this.adder.addSymbol(new NPlet(notes, this.context));  
-        });
-    }
-  
-    setNoteDistance = ( noteDistance: number ) :void =>
+    createStaff = ()=>
     {
-        this.noteDistance = noteDistance;
+        return new Staff(this.context);
     }
+
+    *generateChord(note: number, alt=0, type= ChordType.maj)
+    {
+        yield this.chord(note, alt, type);
+    }
+
+    *generateRest()
+    {
+        let r = this.rest();
+        this.moveCursor(this.context.space * 3);
+        yield r;
+    }
+
+    *generateNote(deg :number, alt :number=0)
+    {
+        let n = this.note(deg, alt);
+        this.moveCursor(this.context.space * 3);
+        this.tie.note(n);
+        this.group.note(n);
+        this.nplet.note(n);
+        yield n;
+        if(this.group.in())
+        {
+            this.linkedToPrevious = true;
+        }        
+    }
+
     
     length = ( denominator: number, dots: number = 0) :void => 
     {
@@ -162,12 +200,14 @@ export class NoteCreator
         this.transpose = transpose;
     }
     
-    createSubBeam = (beam: Beam, notesInBeam: Note[], fromIndex: number, toIndex: number, power: number) =>
+    private *generateSubBeam(beam: Beam, notesInBeam: Note[], fromIndex: number, toIndex: number, power: number)
+    : Generator<BeamUnderBeam> 
     {
         let firstNote = -1;
-        let markBeam = ( index: number, inBeam: boolean ) =>
+        for (var i = fromIndex; i <= toIndex; ++i)
         {
-            if ( inBeam )
+
+            if ( i < toIndex && notesInBeam[i].power <= power )
             {
                 if ( firstNote === -1 )
                 {
@@ -178,8 +218,8 @@ export class NoteCreator
             {
                 if ( firstNote >= 0 )
                 {
-                    var subBeam;
-                    var lastNote = index-1;
+                    var subBeam : BeamUnderBeam;
+                    var lastNote = i-1;
                     if ( firstNote === lastNote )
                     {
                         if ( i === 0 )
@@ -196,20 +236,15 @@ export class NoteCreator
                         subBeam = new BeamUnderBeam( beam, notesInBeam[firstNote], notesInBeam[lastNote], this.context );
                     }
 
-                    this.adder.addSymbol(subBeam);
+                    yield subBeam;
                     if ( power > -6 )
                     {
-                        this.createSubBeam( subBeam, notesInBeam, firstNote, index, power - 1 );
+                        yield* this.generateSubBeam( subBeam, notesInBeam, firstNote, i, power - 1 );
                     }
                     firstNote = -1;
                 }
             }
         }
-        for (var i = fromIndex; i < toIndex; ++i)
-        {
-            markBeam( i, notesInBeam[i].power <= power );
-        }
-        markBeam( toIndex, false );
     }
     
     degreeToTone = ( n: number ) :number =>
@@ -259,33 +294,25 @@ export class NoteCreator
         {
             this.deg(deg, alt);
         }
-        var note = new Note(this.power, this.currNote, this.alt, this.adder.getCursor(), this.context);
+        var note = new Note(this.power, this.currNote, this.alt, this.cursor, this.context);
         if (this.dots > 0)
         {
             note.dots = this.dots; 
         }
-        this.adder.moveCursor(this.noteDistance);
         
-        this.tie.note(note);
-        this.group.note(note);
-        this.nplet.note(note);
-        
-        this.adder.addSymbol(note);
         return note;
     }
     
     rest = () :Rest =>
     {
-        var rest = new Rest(this.power, this.adder.getCursor(), this.context);
+        var rest = new Rest(this.power, this.cursor, this.context);
         if (this.dots > 0)
         {
             rest.dots = this.dots;
         }
-        this.adder.moveCursor(this.noteDistance);
-        this.adder.addSymbol(rest);
         return rest;
     }
-    
+
     chord = (note: number, alt=0, type= ChordType.maj) =>
     {
         if ( alt === undefined )
@@ -299,10 +326,7 @@ export class NoteCreator
         else
         {
             this.deg(note, alt);
-        }
-        var chord = new Chord( this.currNote, this.alt, type, this.adder.getCursor(), this.context);
-        
-        this.adder.addSymbol(chord);
-        return chord;
+        }        
+        return new Chord( this.currNote, this.alt, type, this.cursor, this.context);
     }
 };

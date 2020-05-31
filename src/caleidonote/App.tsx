@@ -7,6 +7,7 @@ import { Button, Input } from '@material-ui/core'
 import './App.css';
 import { FaPlay, FaStop } from 'react-icons/fa';
 import { GeneratePattern } from './Generator';
+import { NoteCreator } from './NoteCreator';
 
 type AppState = {
     zoom: number,
@@ -18,7 +19,7 @@ type AppState = {
 
 class App extends React.Component<{},AppState>
 {   
-    generator: GeneratePattern = new GeneratePattern();
+    generator: GeneratePattern = new GeneratePattern(new NoteCreator());
     painter: PainterNote = new PainterNote(this.generator);
     
     constructor(props: any)

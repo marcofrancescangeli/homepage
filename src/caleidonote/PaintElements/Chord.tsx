@@ -1,6 +1,6 @@
-import Symbol from './Symbol'
-import NotePaintContext from './NotePaintContext';
 import * as DrawUtils from './DrawUtils';
+import NotePaintContext from './NotePaintContext';
+import Symbol from './Symbol';
 import * as Utils from './Utils';
 
 export enum ChordType
@@ -34,13 +34,14 @@ export class Chord extends Symbol
     type :ChordType;
     name :string;
     
-    constructor(note :number, alt :number, type: ChordType, x: number, context: NotePaintContext)
+    constructor(note :number, alt :number, type: ChordType, cursor: number, context: NotePaintContext)
     {
-        super( x, context);
+        super( 0, context);
     
         this.note = note;
         this.alt = alt;
         this.centerY = context.space * 8;
+        this.centerX = cursor;
         this.type = type;
         this.bb.w = 50;
         switch(Utils.mod(note,7))

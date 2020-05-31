@@ -1,16 +1,13 @@
 import Painter from './Painter'
 import Symbol from './PaintElements/Symbol';
 import Queue from './Queue';
-import {NoteCreator, NoteAdder} from './NoteCreator';
 import { Generator } from './Generator';
 
-class PainterNote implements Painter, NoteAdder
+class PainterNote implements Painter
 {
     leftmost: number = 0;
     offset: number = 0;
     rightmost: number = 0;
-    cursor: number = 0;
-    creator: NoteCreator;
 
     backgroundElements = new Array<Symbol>(10);
     elementList: Queue<Symbol> = new Queue<Symbol>(1000);
@@ -19,9 +16,6 @@ class PainterNote implements Painter, NoteAdder
     /*
     this should only be given a Generator object (that has a function* method) which simply generates Symbols.
     The generator might have a Note Creator, which also has a generator. Can I pipe generators?
-
-    The note creator object 
-
     */
 
     generator: Generator;
@@ -29,7 +23,7 @@ class PainterNote implements Painter, NoteAdder
     constructor(generator: Generator)
     {
         this.generator = generator;
-        this.creator = new NoteCreator(this);
+        generator.getBackgroundSymbols().forEach(s=>this.addBackgroundSymbol(s));
     }
 
     //paint new elements and return the rightmost coordinate (in canvas X)
@@ -37,7 +31,7 @@ class PainterNote implements Painter, NoteAdder
     {
         if ( this.lastElementDrawn === this.elementList.end) 
         {
-            this.generator.generate(this.creator);
+            this.fetchSymbol();
         }
         let res = this.rightmost;
         this.elementList.forRange(this.lastElementDrawn, this.elementList.end, (s: Symbol)=>
@@ -77,11 +71,11 @@ class PainterNote implements Painter, NoteAdder
         this.rightmost += offset;
         this.elementList.forRange(this.elementList.begin, this.elementList.end, (s: Symbol)=>
         {
-            s.centerX += offset;            
+            s.centerX += offset;
         });
         
         this.lastElementDrawn = this.elementList.begin;
-        this.cursor += offset;
+        this.generator.moveCursor(offset);
         return this.leftmost;
     }
 
@@ -95,26 +89,19 @@ class PainterNote implements Painter, NoteAdder
         this.backgroundElements.forEach( e=>{ e.draw(context)});
     }
 
-    addSymbol = (symbol :Symbol) : number =>
+    fetchSymbol = () : number =>
     {
-        this.elementList.pushBack(symbol);
-        let symbolLeft = symbol.centerX+symbol.bb.left();
-        if ( this.rightmost < symbolLeft )
+        let symbol = this.generator.fetchSymbol();
+        if (symbol)
         {
-            this.rightmost = symbolLeft;
+            this.elementList.pushBack(symbol);
+            let symbolLeft = symbol.centerX+symbol.bb.left();
+            if ( this.rightmost < symbolLeft )
+            {
+                this.rightmost = symbolLeft;
+            }
         }
         return this.rightmost;
-    }
-
-    getCursor = ():number => 
-    {
-        return this.cursor;
-    }
-
-    moveCursor= (offset:number) : number =>
-    {
-        this.cursor += offset;
-        return this.getCursor();
     }
 }
 
