@@ -1,7 +1,8 @@
 import Painter from './Painter'
 import Symbol from './PaintElements/Symbol';
 import Queue from './Queue';
-import { Generator } from './Generator';
+import Generator from './Generator';
+import Fetcher from './Fetcher';
 
 class PainterNote implements Painter
 {
@@ -13,17 +14,12 @@ class PainterNote implements Painter
     elementList: Queue<Symbol> = new Queue<Symbol>(1000);
     lastElementDrawn: number = 0;
 
-    /*
-    this should only be given a Generator object (that has a function* method) which simply generates Symbols.
-    The generator might have a Note Creator, which also has a generator. Can I pipe generators?
-    */
-
-    generator: Generator;
+    fetcher = new Fetcher();
 
     constructor(generator: Generator)
     {
-        this.generator = generator;
-        generator.getBackgroundSymbols().forEach(s=>this.addBackgroundSymbol(s));
+        this.fetcher.setGenerator(generator);
+        this.fetcher.getBackgroundSymbols().forEach(s=>this.addBackgroundSymbol(s));
     }
 
     //paint new elements and return the rightmost coordinate (in canvas X)
@@ -75,7 +71,7 @@ class PainterNote implements Painter
         });
         
         this.lastElementDrawn = this.elementList.begin;
-        this.generator.applyOffset(offset);
+        this.fetcher.applyOffset(offset);
         return this.leftmost;
     }
 
@@ -91,7 +87,7 @@ class PainterNote implements Painter
 
     fetchSymbol = () : number =>
     {
-        let symbol = this.generator.fetchSymbol();
+        let symbol = this.fetcher.fetchSymbol();
         if (symbol)
         {
             this.elementList.pushBack(symbol);

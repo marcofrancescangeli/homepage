@@ -2,17 +2,18 @@ import * as NC from "./NoteCreator";
 import { ChordType } from "./PaintElements/Chord";
 import { Signal } from "./Signal";
 import Symbol from "./PaintElements/Symbol"
-import Queue from "./Queue";
 
 export interface Generator
 {
-    fetchSymbol:()=>Symbol | undefined;
+    fetchSymbol:()=>{s: Symbol, linkedToPrevious: boolean} | undefined;
     getBackgroundSymbols:()=>Symbol[];
     applyOffset:(offset: number)=>void;
 }
 
 export class GeneratePattern implements Generator
 {
+    private m_generator : globalThis.Generator<Symbol>= this.generator();
+    
     public onGeneratorStringChanged = new Signal();
 
     set generatorString( generatorString : string )
@@ -30,14 +31,9 @@ export class GeneratePattern implements Generator
 
     private noteCreator : NC.NoteCreator;
 
-    private m_generator : globalThis.Generator<Symbol>= this.generator();
-    private endOfGenerator = false;
-    private m_buffer = new Queue<Symbol>(256);
-
     constructor (c :NC.NoteCreator)
     {
         this.noteCreator = c;
-        this.fetchToBuffer();
     }
 
     getBackgroundSymbols = () : Symbol[] =>
@@ -45,59 +41,19 @@ export class GeneratePattern implements Generator
         return [this.noteCreator.createStaff()];
     }
     
-    fetchSymbol = () : Symbol | undefined =>
+    fetchSymbol = () : {s: Symbol, linkedToPrevious: boolean} | undefined =>
     {
-        if (this.m_buffer.size() <= 1 && !this.endOfGenerator)
-        {
-            // make sure that we retrieve a whole chain of linked symbols after the one we have already
-            do{
-                this.fetchToBuffer();
-            } while(this.noteCreator.isLinkedToPrevious() && !this.endOfGenerator);
-        }
-
-        if (!this.m_buffer.isEmpty())
-        {
-            let toReturn = this.m_buffer.front();
-            this.m_buffer.popFront();
-            return toReturn;
-        }
-        else
+        let n = this.m_generator.next();
+        if ( n.done || !n.value )
         {
             return undefined;
         }
-    }
-
-    private fetchToBuffer = () =>{
-        let next = this.fetchSymbolInternal();
-        if (next)
-        {
-            this.m_buffer.pushBack(next);
-        }
-    }
-
-    private fetchSymbolInternal = () : Symbol | null=>
-    {
-        let n = this.m_generator.next();
-        if ( n.done )
-        {
-            this.endOfGenerator = true;
-            return null;
-        }
-        return n.value;
-    }
-
-    moveCursor = (offset: number) : void=>
-    {
-        this.noteCreator.moveCursor(offset);
+        return {s: n.value, linkedToPrevious: this.noteCreator.isLinkedToPrevious()};
     }
 
     applyOffset = (offset: number) : void=>
     {
         this.noteCreator.moveCursor(offset);
-        this.m_buffer.forEach((s: Symbol)=>
-        {
-            s.centerX += offset;
-        }); 
     }
 
     *generator()
@@ -170,3 +126,5 @@ export class GeneratePattern implements Generator
         */
     };
 }
+
+export default Generator;
