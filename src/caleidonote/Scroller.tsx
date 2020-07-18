@@ -28,7 +28,7 @@ export class Scroller extends React.Component<ScrollerProps, ScrollerState>
         this.lastTime = window.performance.now();
     }
 
-    onResize()
+    onResize = () =>
     {    
         if (this.mainDiv)     
         {
@@ -36,6 +36,7 @@ export class Scroller extends React.Component<ScrollerProps, ScrollerState>
             if (m)
             {            
                 this.setState( {width: m.clientWidth, height: m.clientHeight});
+                this.reset();
             }
         }
     }
@@ -52,8 +53,6 @@ export class Scroller extends React.Component<ScrollerProps, ScrollerState>
     {
         window.removeEventListener("resize", this.onResize);
     }
-
-    
 
     componentDidUpdate( prevProps: ScrollerProps )
     {
